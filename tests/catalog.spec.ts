@@ -8,8 +8,8 @@ test('deve exibir o catálogo de NFTs', async ({ page }) => {
   ).toBeVisible()
 
   await expect(
-    page.getByText('Sunglasses Ape'),
-  ).toBeVisible()
+  page.getByText('Sage Nomad'),
+).toBeVisible()
 })
 
 test('deve permitir abrir os detalhes de um NFT', async ({ page }) => {

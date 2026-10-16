@@ -30,21 +30,34 @@ export default function HomePage() {
     params={{ nftId: nft.id }}
     className="block rounded-xl border border-white/10 bg-[#211714] p-4 transition hover:border-orange-400"
   >
-    <div className="mb-4 flex aspect-square items-center justify-center rounded-lg bg-[#35251e]">
-      <span className="text-sm text-white/50">
-        Imagem do NFT
+    <article className="group overflow-hidden rounded-xl border border-white/10 bg-[#241813] transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/50">
+  <div className="aspect-square overflow-hidden bg-[#33231d]">
+    <img
+      src={nft.imageUrl}
+      alt={`Arte do NFT ${nft.name}`}
+      loading="lazy"
+      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+    />
+  </div>
+
+  <div className="space-y-2 p-4">
+    <h2 className="font-semibold text-white">{nft.name}</h2>
+
+    <p className="text-xs text-white/50">
+      Criado por {nft.creator}
+    </p>
+
+    <div className="flex items-center justify-between pt-2">
+      <span className="font-bold text-orange-400">
+        {nft.price.toFixed(2)} {nft.currency}
+      </span>
+
+      <span className="text-xs text-white/50 transition-colors group-hover:text-orange-400">
+        Ver detalhes →
       </span>
     </div>
-
-    <h2 className="text-lg font-bold">{nft.name}</h2>
-
-    <p className="mt-2 text-sm text-white/60">
-      Criador: {nft.creator}
-    </p>
-
-    <p className="mt-3 font-bold text-orange-400">
-      {nft.price} {nft.currency}
-    </p>
+  </div>
+</article>
   </Link>
 ))}
       </section>

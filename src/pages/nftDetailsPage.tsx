@@ -37,7 +37,13 @@ export default function NftDetailsPage() {
 
       <div className="mx-auto mt-8 grid max-w-5xl gap-10 md:grid-cols-2">
         <div className="flex aspect-square items-center justify-center rounded-xl bg-[#35251e]">
-          <span className="text-white/50">Imagem do NFT</span>
+          <div className="aspect-square w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-[#33231d]">
+            <img
+              src={nft.imageUrl}
+              alt={`Arte do NFT ${nft.name}`}
+              className="h-full w-full object-cover"
+            />
+          </div>
         </div>
 
         <section>
