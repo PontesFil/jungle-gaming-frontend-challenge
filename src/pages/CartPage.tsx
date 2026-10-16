@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { createCheckout } from '../services/checkoutService'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function CartPage() {
   const { items, removeItem, clearCart } = useCart()
@@ -11,6 +12,8 @@ export default function CartPage() {
   const total = items.reduce((sum, nft) => sum + nft.price, 0)
 
   const navigate = useNavigate()
+
+  const { user } = useAuth()
 
 const [idempotencyKey, setIdempotencyKey] = useState(() =>
   crypto.randomUUID(),
@@ -32,6 +35,11 @@ const checkoutMutation = useMutation({
 
 function handleCheckout() {
   if (items.length === 0 || checkoutMutation.isPending) {
+    return
+  }
+
+  if (!user) {
+    navigate({ to: '/login' })
     return
   }
 

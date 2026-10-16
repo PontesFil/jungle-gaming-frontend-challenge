@@ -10,6 +10,8 @@ import Header from './components/layout/Header'
 import NftDetailsPage from './pages/nftDetailsPage'
 import CartPage from './pages/CartPage'
 import ConfirmationPage from './pages/ConfirmationPage'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -47,11 +49,25 @@ const confirmationRoute = createRoute({
   component: ConfirmationPage,
 })
 
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/login',
+  component: LoginPage,
+})
+
+const registerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/register',
+  component: RegisterPage,
+})
+
 const routeTree = rootRoute.addChildren([
   homeRoute,
   nftDetailsRoute,
   cartRoute,
   confirmationRoute,
+  loginRoute,
+  registerRoute,
 ])
 
 export const router = createRouter({
