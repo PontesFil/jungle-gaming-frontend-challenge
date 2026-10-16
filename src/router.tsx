@@ -9,6 +9,7 @@ import HomePage from './pages/Homepage'
 import Header from './components/layout/Header'
 import NftDetailsPage from './pages/nftDetailsPage'
 import CartPage from './pages/CartPage'
+import CheckoutPage from './pages/CheckoutPage'
 import ConfirmationPage from './pages/ConfirmationPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -47,6 +48,12 @@ const cartRoute = createRoute({
   component: CartPage,
 })
 
+const checkoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/checkout',
+  component: CheckoutPage,
+})
+
 const confirmationRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/confirmation',
@@ -72,6 +79,7 @@ const routeTree = rootRoute.addChildren([
   homeRoute,
   nftDetailsRoute,
   cartRoute,
+  checkoutRoute,
   confirmationRoute,
   loginRoute,
   registerRoute,
