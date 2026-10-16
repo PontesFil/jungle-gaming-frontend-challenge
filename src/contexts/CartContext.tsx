@@ -1,3 +1,4 @@
+
 import {
   createContext,
   useContext,
@@ -8,6 +9,7 @@ import {
 
 import type { NFT } from '../types/nft'
 import { socket } from '../services/socket'
+import { useAuth } from './AuthContext'
 
 interface CartContextType {
   items: NFT[]
@@ -16,44 +18,102 @@ interface CartContextType {
   clearCart: () => void
 }
 
-const CartContext = createContext<CartContextType | undefined>(undefined)
+const CartContext = createContext<CartContextType | undefined>(
+  undefined,
+)
 
-export function CartProvider({ children }: { children: ReactNode }) {
-  // 1. Recupera o carrinho salvo no navegador
-  const [items, setItems] = useState<NFT[]>(() => {
-    try {
-      const savedCart = localStorage.getItem('kurio-cart')
+const GUEST_CART_KEY = 'kurio-cart:guest'
 
-      return savedCart ? (JSON.parse(savedCart) as NFT[]) : []
-    } catch {
-      return []
-    }
-  })
+function readCart(key: string): NFT[] {
+  try {
+    const saved = localStorage.getItem(key)
 
-  // 2. Salva o carrinho sempre que os itens mudarem
-  useEffect(() => {
-    localStorage.setItem('kurio-cart', JSON.stringify(items))
-  }, [items])
+    if (!saved) return []
 
-  // 3. Atualiza os preços do carrinho via Socket.IO
-  useEffect(() => {
-    function handlePriceUpdate({
-  id,
-  price,
+    const parsed: unknown = JSON.parse(saved)
+
+    return Array.isArray(parsed) ? (parsed as NFT[]) : []
+  } catch {
+    return []
+  }
+}
+
+export function CartProvider({
+  children,
 }: {
-  id: string
-  price: number
+  children: ReactNode
 }) {
-  console.log('[CARRINHO] Preço recebido:', id, price)
+  const { user } = useAuth()
 
-  setItems((currentItems) =>
-    currentItems.map((nft) =>
-      nft.id === id ? { ...nft, price } : nft,
-    ),
+  const cartKey = user
+    ? `kurio-cart:${user.email.trim().toLowerCase()}`
+    : GUEST_CART_KEY
+
+  return (
+    <CartStore key={cartKey} storageKey={cartKey}>
+      {children}
+    </CartStore>
   )
 }
 
-    function handleSnapshot(prices: Record<string, number>) {
+function CartStore({
+  children,
+  storageKey,
+}: {
+  children: ReactNode
+  storageKey: string
+}) {
+  const [items, setItems] = useState<NFT[]>(() => {
+    const savedItems = readCart(storageKey)
+
+    // Mantém o fluxo visitante -> login -> checkout.
+    if (storageKey !== GUEST_CART_KEY) {
+      const guestItems = readCart(GUEST_CART_KEY)
+
+      if (guestItems.length > 0) {
+        const merged = [...savedItems]
+
+        for (const nft of guestItems) {
+          if (!merged.some((item) => item.id === nft.id)) {
+            merged.push(nft)
+          }
+        }
+
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify(merged),
+        )
+        localStorage.removeItem(GUEST_CART_KEY)
+
+        return merged
+      }
+    }
+
+    return savedItems
+  })
+
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(items))
+  }, [items, storageKey])
+
+  useEffect(() => {
+    function handlePriceUpdate({
+      id,
+      price,
+    }: {
+      id: string
+      price: number
+    }) {
+      setItems((currentItems) =>
+        currentItems.map((nft) =>
+          nft.id === id ? { ...nft, price } : nft,
+        ),
+      )
+    }
+
+    function handleSnapshot(
+      prices: Record<string, number>,
+    ) {
       setItems((currentItems) =>
         currentItems.map((nft) => {
           const price = prices[nft.id]
@@ -74,36 +134,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // 4. Adiciona um NFT sem permitir duplicatas
   function addItem(nft: NFT) {
     setItems((currentItems) => {
       const alreadyExists = currentItems.some(
         (item) => item.id === nft.id,
       )
 
-      if (alreadyExists) {
-        return currentItems
-      }
+      if (alreadyExists) return currentItems
 
       return [...currentItems, nft]
     })
   }
 
-  // 5. Remove um NFT
   function removeItem(id: string) {
     setItems((currentItems) =>
       currentItems.filter((item) => item.id !== id),
     )
   }
 
-  // 6. Limpa o carrinho
   function clearCart() {
     setItems([])
   }
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, clearCart }}
+      value={{
+        items,
+        addItem,
+        removeItem,
+        clearCart,
+      }}
     >
       {children}
     </CartContext.Provider>
@@ -114,7 +174,9 @@ export function useCart() {
   const context = useContext(CartContext)
 
   if (!context) {
-    throw new Error('useCart deve ser usado dentro de CartProvider')
+    throw new Error(
+      'useCart deve ser usado dentro de CartProvider',
+    )
   }
 
   return context
