@@ -12,6 +12,7 @@ interface CartContextType {
   items: NFT[]
   addItem: (nft: NFT) => void
   removeItem: (id: string) => void
+  clearCart: () => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -49,8 +50,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     )
   }
 
+  function clearCart() {
+  setItems([])
+  }
+
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, clearCart }}>
       {children}
     </CartContext.Provider>
   )

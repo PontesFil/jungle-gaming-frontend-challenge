@@ -8,6 +8,8 @@ import {
 import HomePage from './pages/Homepage'
 import Header from './components/layout/Header'
 import NftDetailsPage from './pages/nftDetailsPage'
+import CartPage from './pages/CartPage'
+import ConfirmationPage from './pages/ConfirmationPage'
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -30,9 +32,26 @@ const nftDetailsRoute = createRoute({
   component: NftDetailsPage,
 })
 
+const cartRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/cart',
+  component: CartPage,
+})
+
+const confirmationRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/confirmation',
+  validateSearch: (search: Record<string, unknown>) => ({
+    orderId: typeof search.orderId === 'string' ? search.orderId : '',
+  }),
+  component: ConfirmationPage,
+})
+
 const routeTree = rootRoute.addChildren([
   homeRoute,
   nftDetailsRoute,
+  cartRoute,
+  confirmationRoute,
 ])
 
 export const router = createRouter({

@@ -20,10 +20,10 @@ enableMocking().then(() => {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-  <CartProvider>
-    <RouterProvider router={router} />
-  </CartProvider>
-</QueryClientProvider>
-    </StrictMode>,
+        <CartProvider>
+          <RouterProvider router={router} />
+        </CartProvider>
+      </QueryClientProvider>
+    </StrictMode>
   )
 })

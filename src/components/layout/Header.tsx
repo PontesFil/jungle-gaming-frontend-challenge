@@ -19,17 +19,16 @@ export default function Header() {
           Mercado
         </span>
 
-<Link
-  to="/"
-  className="rounded border border-white/20 px-3 py-2 text-white"
->
-  Carrinho ({items.length})
-</Link>
+        <Link
+          to="/cart"
+          className="rounded border border-white/20 px-3 py-2 text-white"
+        >
+          Carrinho ({items.length})
+        </Link>
 
         <button
           type="button"
-          className="rounded bg-orange-400 px-4 py-2 font-bold text-black"
-        >
+          className="rounded bg-orange-400 px-4 py-2 font-bold text-black">
           ENTRAR
         </button>
       </nav>
