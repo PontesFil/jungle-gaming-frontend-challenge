@@ -1,3 +1,4 @@
+
 import { http, HttpResponse, delay } from 'msw'
 import { mockNfts } from '../data/mockNfts'
 
@@ -6,7 +7,36 @@ interface CheckoutRequest {
   idempotencyKey: string
 }
 
-const completedOrders = new Map<string, string>()
+interface StoredOrder {
+  orderId: string
+  ownerEmail: string
+  nftIds: string[]
+  status: 'confirmed'
+  createdAt: string
+}
+
+const STORAGE_KEY = 'kurio-orders'
+
+function getCurrentEmail(): string | null {
+  try {
+    const raw = localStorage.getItem('kurio-user')
+    if (!raw) return null
+
+    const user = JSON.parse(raw) as { email?: string }
+    return user.email?.trim().toLowerCase() || null
+  } catch {
+    return null
+  }
+}
+
+function getOrders(): StoredOrder[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? (JSON.parse(raw) as StoredOrder[]) : []
+  } catch {
+    return []
+  }
+}
 
 export const handlers = [
   http.get('/api/nfts', () => {
@@ -16,22 +46,54 @@ export const handlers = [
   http.post('/api/checkout', async ({ request }) => {
     await delay(700)
 
-    const body = (await request.json()) as CheckoutRequest
+    const ownerEmail = getCurrentEmail()
+
+    if (!ownerEmail) {
+      return HttpResponse.json(
+        { message: 'Faça login para finalizar o pedido.' },
+        { status: 401 },
+      )
+    }
+
+    let body: CheckoutRequest
+
+    try {
+      body = (await request.json()) as CheckoutRequest
+    } catch {
+      return HttpResponse.json(
+        { message: 'Dados inválidos.' },
+        { status: 400 },
+      )
+    }
+
     const { nftIds, idempotencyKey } = body
 
-    if (!idempotencyKey || !Array.isArray(nftIds) || nftIds.length === 0) {
+    if (
+      typeof idempotencyKey !== 'string' ||
+      !idempotencyKey.trim() ||
+      !Array.isArray(nftIds) ||
+      nftIds.length === 0 ||
+      !nftIds.every((id) => typeof id === 'string')
+    ) {
       return HttpResponse.json(
         { message: 'Pedido inválido.' },
         { status: 400 },
       )
     }
 
-    const existingOrderId = completedOrders.get(idempotencyKey)
+    const orders = getOrders()
 
-    if (existingOrderId) {
+    const existingOrder = orders.find(
+      (order) =>
+        order.ownerEmail === ownerEmail &&
+        order.orderId !== '' &&
+        orderKey(order) === idempotencyKey,
+    )
+
+    if (existingOrder) {
       return HttpResponse.json({
-        orderId: existingOrderId,
-        status: 'confirmed',
+        orderId: existingOrder.orderId,
+        status: existingOrder.status,
       })
     }
 
@@ -46,12 +108,64 @@ export const handlers = [
       )
     }
 
-    const orderId = crypto.randomUUID()
-    completedOrders.set(idempotencyKey, orderId)
+    const order: StoredOrder = {
+      orderId: crypto.randomUUID(),
+      ownerEmail,
+      nftIds,
+      status: 'confirmed',
+      createdAt: new Date().toISOString(),
+    }
+
+    const orderWithKey = {
+      ...order,
+      idempotencyKey,
+    }
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([...orders, orderWithKey]),
+    )
 
     return HttpResponse.json({
-      orderId,
-      status: 'confirmed',
+      orderId: order.orderId,
+      status: order.status,
+    })
+  }),
+
+  http.get('/api/orders/:orderId', async ({ params }) => {
+    await delay(250)
+
+    const ownerEmail = getCurrentEmail()
+
+    if (!ownerEmail) {
+      return HttpResponse.json(
+        { message: 'Faça login para consultar o pedido.' },
+        { status: 401 },
+      )
+    }
+
+    const order = getOrders().find(
+      (item) => item.orderId === params.orderId,
+    )
+
+    if (!order || order.ownerEmail !== ownerEmail) {
+      return HttpResponse.json(
+        { message: 'Pedido não encontrado.' },
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json({
+      orderId: order.orderId,
+      status: order.status,
+      nftIds: order.nftIds,
+      createdAt: order.createdAt,
     })
   }),
 ]
+
+function orderKey(order: StoredOrder): string | undefined {
+  return (
+    order as StoredOrder & { idempotencyKey?: string }
+  ).idempotencyKey
+}
