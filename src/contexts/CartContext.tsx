@@ -7,6 +7,7 @@ import {
 } from 'react'
 
 import type { NFT } from '../types/nft'
+import { socket } from '../services/socket'
 
 interface CartContextType {
   items: NFT[]
@@ -18,23 +19,65 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  // 1. Recupera o carrinho salvo no navegador
   const [items, setItems] = useState<NFT[]>(() => {
     try {
       const savedCart = localStorage.getItem('kurio-cart')
 
-      return savedCart ? JSON.parse(savedCart) as NFT[] : []
+      return savedCart ? (JSON.parse(savedCart) as NFT[]) : []
     } catch {
       return []
     }
   })
 
+  // 2. Salva o carrinho sempre que os itens mudarem
   useEffect(() => {
     localStorage.setItem('kurio-cart', JSON.stringify(items))
   }, [items])
 
+  // 3. Atualiza os preços do carrinho via Socket.IO
+  useEffect(() => {
+    function handlePriceUpdate({
+      id,
+      price,
+    }: {
+      id: string
+      price: number
+    }) {
+      setItems((currentItems) =>
+        currentItems.map((nft) =>
+          nft.id === id ? { ...nft, price } : nft,
+        ),
+      )
+    }
+
+    function handleSnapshot(prices: Record<string, number>) {
+      setItems((currentItems) =>
+        currentItems.map((nft) => {
+          const price = prices[nft.id]
+
+          return price === undefined
+            ? nft
+            : { ...nft, price }
+        }),
+      )
+    }
+
+    socket.on('nft:price-updated', handlePriceUpdate)
+    socket.on('prices:snapshot', handleSnapshot)
+
+    return () => {
+      socket.off('nft:price-updated', handlePriceUpdate)
+      socket.off('prices:snapshot', handleSnapshot)
+    }
+  }, [])
+
+  // 4. Adiciona um NFT sem permitir duplicatas
   function addItem(nft: NFT) {
     setItems((currentItems) => {
-      const alreadyExists = currentItems.some((item) => item.id === nft.id)
+      const alreadyExists = currentItems.some(
+        (item) => item.id === nft.id,
+      )
 
       if (alreadyExists) {
         return currentItems
@@ -44,18 +87,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     })
   }
 
+  // 5. Remove um NFT
   function removeItem(id: string) {
     setItems((currentItems) =>
       currentItems.filter((item) => item.id !== id),
     )
   }
 
+  // 6. Limpa o carrinho
   function clearCart() {
-  setItems([])
+    setItems([])
   }
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, clearCart }}>
+    <CartContext.Provider
+      value={{ items, addItem, removeItem, clearCart }}
+    >
       {children}
     </CartContext.Provider>
   )

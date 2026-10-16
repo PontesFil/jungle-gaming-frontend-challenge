@@ -12,14 +12,21 @@ import CartPage from './pages/CartPage'
 import ConfirmationPage from './pages/ConfirmationPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import { useRealtimePrices } from './hooks/useRealtimePrices'
 
-const rootRoute = createRootRoute({
-  component: () => (
+function RootLayout() {
+  useRealtimePrices()
+
+  return (
     <>
       <Header />
       <Outlet />
     </>
-  ),
+  )
+}
+
+const rootRoute = createRootRoute({
+  component: RootLayout,
 })
 
 const homeRoute = createRoute({
