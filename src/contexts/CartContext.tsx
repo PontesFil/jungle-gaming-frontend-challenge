@@ -38,18 +38,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // 3. Atualiza os preços do carrinho via Socket.IO
   useEffect(() => {
     function handlePriceUpdate({
-      id,
-      price,
-    }: {
-      id: string
-      price: number
-    }) {
-      setItems((currentItems) =>
-        currentItems.map((nft) =>
-          nft.id === id ? { ...nft, price } : nft,
-        ),
-      )
-    }
+  id,
+  price,
+}: {
+  id: string
+  price: number
+}) {
+  console.log('[CARRINHO] Preço recebido:', id, price)
+
+  setItems((currentItems) =>
+    currentItems.map((nft) =>
+      nft.id === id ? { ...nft, price } : nft,
+    ),
+  )
+}
 
     function handleSnapshot(prices: Record<string, number>) {
       setItems((currentItems) =>
