@@ -1,9 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from '@tanstack/react-router'
 import { getNfts } from '../services/nftService'
+import { useCart } from '../contexts/CartContext'
 
 export default function NftDetailsPage() {
   const { nftId } = useParams({ from: '/nft/$nftId' })
+
+  const { addItem, items } = useCart()
 
   const { data: nfts, isPending, isError } = useQuery({
     queryKey: ['nfts'],
@@ -23,6 +26,8 @@ export default function NftDetailsPage() {
   if (!nft) {
     return <p className="p-8 text-white">NFT não encontrado.</p>
   }
+
+  const isInCart = items.some((item) => item.id === nft.id)
 
   return (
     <main className="min-h-screen bg-[#140e0c] p-8 text-white">
@@ -49,11 +54,13 @@ export default function NftDetailsPage() {
           </p>
 
           <button
-            type="button"
-            className="mt-8 rounded-lg bg-orange-500 px-6 py-3 font-bold text-black"
-          >
-            Adicionar ao carrinho
-          </button>
+  type="button"
+  onClick={() => addItem(nft)}
+  disabled={isInCart}
+  className="mt-8 rounded-lg bg-orange-500 px-6 py-3 font-bold text-black disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {isInCart ? 'Adicionado ao carrinho' : 'Adicionar ao carrinho'}
+</button>
         </section>
       </div>
     </main>

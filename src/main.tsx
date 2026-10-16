@@ -4,6 +4,7 @@ import { RouterProvider } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { router } from './router'
 import './index.css'
+import { CartProvider } from './contexts/CartContext'
 
 const queryClient = new QueryClient()
 
@@ -19,8 +20,10 @@ enableMocking().then(() => {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+  <CartProvider>
+    <RouterProvider router={router} />
+  </CartProvider>
+</QueryClientProvider>
     </StrictMode>,
   )
 })
