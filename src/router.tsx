@@ -1,18 +1,13 @@
+
 import {
   createRootRoute,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   Outlet,
 } from '@tanstack/react-router'
 
-import HomePage from './pages/Homepage'
 import Header from './components/layout/Header'
-import NftDetailsPage from './pages/nftDetailsPage'
-import CartPage from './pages/CartPage'
-import CheckoutPage from './pages/CheckoutPage'
-import ConfirmationPage from './pages/ConfirmationPage'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
 import { useRealtimePrices } from './hooks/useRealtimePrices'
 
 function RootLayout() {
@@ -33,46 +28,57 @@ const rootRoute = createRootRoute({
 const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: HomePage,
+  component: lazyRouteComponent(() => import('./pages/Homepage')),
 })
 
 const nftDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/nft/$nftId',
-  component: NftDetailsPage,
+  component: lazyRouteComponent(
+    () => import('./pages/nftDetailsPage'),
+  ),
 })
 
 const cartRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/cart',
-  component: CartPage,
+  component: lazyRouteComponent(() => import('./pages/CartPage')),
 })
 
 const checkoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/checkout',
-  component: CheckoutPage,
+  component: lazyRouteComponent(
+    () => import('./pages/CheckoutPage'),
+  ),
 })
 
 const confirmationRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/confirmation',
   validateSearch: (search: Record<string, unknown>) => ({
-    orderId: typeof search.orderId === 'string' ? search.orderId : '',
+    orderId:
+      typeof search.orderId === 'string'
+        ? search.orderId
+        : '',
   }),
-  component: ConfirmationPage,
+  component: lazyRouteComponent(
+    () => import('./pages/ConfirmationPage'),
+  ),
 })
 
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
-  component: LoginPage,
+  component: lazyRouteComponent(() => import('./pages/LoginPage')),
 })
 
 const registerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/register',
-  component: RegisterPage,
+  component: lazyRouteComponent(
+    () => import('./pages/RegisterPage'),
+  ),
 })
 
 const routeTree = rootRoute.addChildren([

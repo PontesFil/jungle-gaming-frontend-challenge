@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
+import axios from 'axios'
+
 import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
 import { createCheckout } from '../services/checkoutService'
-import axios from 'axios'
 import { Button } from '@/components/ui/button'
 
 export default function CheckoutPage() {
@@ -42,7 +43,7 @@ export default function CheckoutPage() {
     },
   })
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     if (
@@ -55,29 +56,29 @@ export default function CheckoutPage() {
     }
 
     checkoutMutation.mutate({
-  nftIds: items.map((nft) => nft.id),
-  idempotencyKey,
-  expectedPrices: Object.fromEntries(
-    items.map((nft) => [nft.id, nft.price]),
-  ),
-})
+      nftIds: items.map((nft) => nft.id),
+      idempotencyKey,
+      expectedPrices: Object.fromEntries(
+        items.map((nft) => [nft.id, nft.price]),
+      ),
+    })
   }
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-[#140e0c] px-6 py-16 text-white">
-        <div className="mx-auto max-w-xl rounded-xl border border-white/10 bg-[#211714] p-8 text-center">
-          <h1 className="mb-4 text-2xl font-bold">
+      <main className="min-h-screen bg-[#140e0c] px-4 py-16 text-white">
+        <div className="mx-auto max-w-xl rounded-2xl border border-[#493025] bg-[#211713] p-8 text-center">
+          <h1 className="text-2xl font-extrabold">
             Entre para continuar
           </h1>
 
-          <p className="mb-6 text-white/60">
+          <p className="mt-4 text-sm leading-relaxed text-white/60">
             Você precisa estar autenticado para acessar o pagamento.
           </p>
 
           <Link
             to="/login"
-            className="text-orange-400 hover:underline"
+            className="mt-6 inline-flex rounded-xl bg-orange-500 px-6 py-3 font-bold text-[#1b100b] transition hover:bg-orange-400"
           >
             Fazer login
           </Link>
@@ -88,14 +89,21 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <main className="min-h-screen bg-[#140e0c] px-6 py-16 text-white">
-        <div className="mx-auto max-w-xl text-center">
-          <h1 className="mb-4 text-2xl font-bold">
+      <main className="min-h-screen bg-[#140e0c] px-4 py-16 text-white">
+        <div className="mx-auto max-w-xl rounded-2xl border border-[#493025] bg-[#211713] p-8 text-center">
+          <h1 className="text-2xl font-extrabold">
             Seu carrinho está vazio
           </h1>
 
-          <Link to="/cart" className="text-orange-400 hover:underline">
-            Voltar ao carrinho
+          <p className="mt-4 text-sm text-white/60">
+            Adicione um NFT ao carrinho para continuar.
+          </p>
+
+          <Link
+            to="/cart"
+            className="mt-6 inline-block font-semibold text-orange-400 hover:underline"
+          >
+            ← Voltar ao carrinho
           </Link>
         </div>
       </main>
@@ -103,38 +111,96 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#140e0c] px-4 py-10 text-white sm:px-6">
-      <div className="mx-auto max-w-5xl">
-        <Link
-          to="/cart"
-          className="mb-6 inline-block text-sm text-orange-400 hover:underline"
+    <main className="min-h-screen bg-[#140e0c] text-white">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Navegação */}
+        <nav
+          aria-label="Navegação"
+          className="mb-8 text-sm text-white/50"
         >
-          ← Voltar ao carrinho
-        </Link>
+          <Link
+            to="/"
+            className="transition hover:text-orange-400"
+          >
+            Mercado
+          </Link>
 
-        <h1 className="mb-2 text-3xl font-bold">
-          Finalizar pagamento
-        </h1>
+          <span className="mx-3">/</span>
 
-        <p className="mb-8 text-white/60">
-          Revise seus dados e os NFTs antes de confirmar.
-        </p>
+          <Link
+            to="/cart"
+            className="transition hover:text-orange-400"
+          >
+            Carrinho
+          </Link>
+
+          <span className="mx-3">/</span>
+
+          <span className="text-orange-400">
+            Pagamento
+          </span>
+        </nav>
+
+        {/* Cabeçalho */}
+        <div className="mb-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-400">
+            Última etapa
+          </p>
+
+          <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
+            Finalizar pagamento
+          </h1>
+
+          <p className="mt-3 text-sm leading-relaxed text-white/50">
+            Revise seus dados e os NFTs antes de confirmar seu pedido.
+          </p>
+        </div>
+
+        {/* Etapas */}
+        <div className="mb-8 flex flex-wrap items-center gap-3 text-xs font-semibold sm:text-sm">
+          <span className="text-orange-400">
+            ✓ Carrinho
+          </span>
+
+          <span className="text-white/30">—</span>
+
+          <span className="rounded-full border border-orange-500/40 bg-orange-500/10 px-3 py-1.5 text-orange-400">
+            2. Pagamento
+          </span>
+
+          <span className="text-white/30">—</span>
+
+          <span className="text-white/40">
+            3. Confirmação
+          </span>
+        </div>
 
         <form
           onSubmit={handleSubmit}
-          className="grid items-start gap-8 lg:grid-cols-[1fr_320px]"
+          className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]"
         >
           <div className="space-y-6">
-            <section className="rounded-xl border border-white/10 bg-[#211714] p-6">
-              <h2 className="mb-5 text-xl font-bold">
-                Dados do colecionador
-              </h2>
+            {/* Dados do colecionador */}
+            <section className="rounded-2xl border border-[#493025] bg-[#211713] p-5 sm:p-6">
+              <div className="mb-6">
+                <p className="text-xs font-semibold uppercase tracking-widest text-orange-400">
+                  Etapa 01
+                </p>
 
-              <div className="space-y-4">
+                <h2 className="mt-2 text-xl font-extrabold">
+                  Dados do colecionador
+                </h2>
+
+                <p className="mt-2 text-sm text-white/50">
+                  Informe os dados para identificar seu pedido.
+                </p>
+              </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
                 <div>
                   <label
                     htmlFor="collector-name"
-                    className="mb-2 block text-sm text-white/70"
+                    className="mb-2 block text-sm font-medium text-white/70"
                   >
                     Nome completo
                   </label>
@@ -142,6 +208,7 @@ export default function CheckoutPage() {
                   <input
                     id="collector-name"
                     type="text"
+                    autoComplete="name"
                     required
                     minLength={3}
                     value={collectorName}
@@ -149,14 +216,14 @@ export default function CheckoutPage() {
                       setCollectorName(event.target.value)
                     }
                     placeholder="Seu nome completo"
-                    className="w-full rounded-lg border border-white/15 bg-[#140e0c] px-4 py-3 text-white outline-none focus:border-orange-400"
+                    className="w-full rounded-xl border border-[#493025] bg-[#140e0c] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-orange-400"
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="collector-email"
-                    className="mb-2 block text-sm text-white/70"
+                    className="mb-2 block text-sm font-medium text-white/70"
                   >
                     E-mail
                   </label>
@@ -164,28 +231,40 @@ export default function CheckoutPage() {
                   <input
                     id="collector-email"
                     type="email"
+                    autoComplete="email"
                     required
                     value={collectorEmail}
                     onChange={(event) =>
                       setCollectorEmail(event.target.value)
                     }
                     placeholder="seu@email.com"
-                    className="w-full rounded-lg border border-white/15 bg-[#140e0c] px-4 py-3 text-white outline-none focus:border-orange-400"
+                    className="w-full rounded-xl border border-[#493025] bg-[#140e0c] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-orange-400"
                   />
                 </div>
               </div>
             </section>
 
-            <section className="rounded-xl border border-white/10 bg-[#211714] p-6">
-              <h2 className="mb-5 text-xl font-bold">
-                Carteira e rede
-              </h2>
+            {/* Carteira e rede */}
+            <section className="rounded-2xl border border-[#493025] bg-[#211713] p-5 sm:p-6">
+              <div className="mb-6">
+                <p className="text-xs font-semibold uppercase tracking-widest text-orange-400">
+                  Etapa 02
+                </p>
 
-              <div className="space-y-4">
+                <h2 className="mt-2 text-xl font-extrabold">
+                  Carteira e rede
+                </h2>
+
+                <p className="mt-2 text-sm text-white/50">
+                  Selecione as opções para simular o pagamento.
+                </p>
+              </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
                 <div>
                   <label
                     htmlFor="wallet"
-                    className="mb-2 block text-sm text-white/70"
+                    className="mb-2 block text-sm font-medium text-white/70"
                   >
                     Carteira
                   </label>
@@ -193,10 +272,15 @@ export default function CheckoutPage() {
                   <select
                     id="wallet"
                     value={wallet}
-                    onChange={(event) => setWallet(event.target.value)}
-                    className="w-full rounded-lg border border-white/15 bg-[#140e0c] px-4 py-3 text-white"
+                    onChange={(event) =>
+                      setWallet(event.target.value)
+                    }
+                    className="w-full rounded-xl border border-[#493025] bg-[#140e0c] px-4 py-3 text-sm text-white outline-none focus:border-orange-400"
                   >
-                    <option value="metamask">MetaMask (simulada)</option>
+                    <option value="metamask">
+                      MetaMask (simulada)
+                    </option>
+
                     <option value="walletconnect">
                       WalletConnect (simulada)
                     </option>
@@ -206,7 +290,7 @@ export default function CheckoutPage() {
                 <div>
                   <label
                     htmlFor="network"
-                    className="mb-2 block text-sm text-white/70"
+                    className="mb-2 block text-sm font-medium text-white/70"
                   >
                     Rede
                   </label>
@@ -214,8 +298,10 @@ export default function CheckoutPage() {
                   <select
                     id="network"
                     value={network}
-                    onChange={(event) => setNetwork(event.target.value)}
-                    className="w-full rounded-lg border border-white/15 bg-[#140e0c] px-4 py-3 text-white"
+                    onChange={(event) =>
+                      setNetwork(event.target.value)
+                    }
+                    className="w-full rounded-xl border border-[#493025] bg-[#140e0c] px-4 py-3 text-sm text-white outline-none focus:border-orange-400"
                   >
                     <option value="ethereum">Ethereum</option>
                     <option value="polygon">Polygon</option>
@@ -223,50 +309,91 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              <p className="mt-4 text-xs text-white/50">
-                Esta etapa utiliza dados simulados. Nenhuma carteira
-                real será conectada.
-              </p>
+              <div className="mt-6 rounded-xl border border-orange-500/20 bg-orange-500/5 p-4">
+                <p className="text-sm leading-relaxed text-white/60">
+                  Esta é uma experiência demonstrativa. Nenhuma
+                  carteira real será conectada e nenhuma transação
+                  em blockchain será realizada.
+                </p>
+              </div>
             </section>
+
+            <Link
+              to="/cart"
+              className="inline-flex text-sm font-semibold text-orange-400 hover:underline"
+            >
+              ← Voltar ao carrinho
+            </Link>
           </div>
 
-          <aside className="rounded-xl border border-white/10 bg-[#211714] p-6">
-            <h2 className="mb-5 text-xl font-bold">
+          {/* Revisão do pedido */}
+          <aside className="rounded-2xl border border-[#67412c] bg-[#281b15] p-5 sm:p-6 lg:sticky lg:top-24">
+            <h2 className="text-xl font-extrabold">
               Revisão do pedido
             </h2>
 
-            <div className="space-y-4">
+            <p className="mt-2 text-sm text-white/50">
+              Confira os itens antes de finalizar.
+            </p>
+
+            <div className="mt-6 space-y-4">
               {items.map((nft) => (
                 <div
                   key={nft.id}
-                  className="flex items-center justify-between gap-3 border-b border-white/10 pb-3"
+                  className="flex items-center gap-3 border-b border-white/10 pb-4"
                 >
-                  <span className="text-sm text-white/80">
-                    {nft.name}
-                  </span>
+                  <img
+                    src={nft.imageUrl}
+                    alt={`Arte do NFT ${nft.name}`}
+                    className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                  />
 
-                  <span className="whitespace-nowrap text-sm text-orange-400">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold">
+                      {nft.name}
+                    </p>
+
+                    <p className="mt-1 truncate text-xs text-white/50">
+                      {nft.creator}
+                    </p>
+                  </div>
+
+                  <p className="shrink-0 text-sm font-bold text-orange-400">
                     {nft.price.toFixed(2)} {nft.currency}
-                  </span>
+                  </p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-5 flex justify-between">
-              <span className="text-white/60">Itens</span>
-              <span>{items.length}</span>
+            <div className="mt-6 space-y-4">
+              <div className="flex justify-between gap-4 text-sm">
+                <span className="text-white/60">Itens</span>
+                <span className="font-semibold">{items.length}</span>
+              </div>
+
+              <div className="flex justify-between gap-4 text-sm">
+                <span className="text-white/60">Subtotal</span>
+                <span className="font-semibold">
+                  {total.toFixed(2)} ETH
+                </span>
+              </div>
+
+              <div className="border-t border-white/10 pt-5">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-bold">
+                    Total estimado
+                  </span>
+
+                  <span className="text-2xl font-extrabold text-orange-400">
+                    {total.toFixed(2)} ETH
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div className="mt-4 flex justify-between border-t border-white/10 pt-4">
-              <span className="font-bold">Total estimado</span>
-
-              <span className="font-bold text-orange-400">
-                {total.toFixed(2)} ETH
-              </span>
-            </div>
-
-            <p className="mt-3 text-xs text-white/50">
-              Valor ilustrativo, ainda sem cotação e taxas da API.
+            <p className="mt-4 text-xs leading-relaxed text-white/40">
+              Valor ilustrativo, sem cotação em moeda fiduciária
+              ou taxas de rede.
             </p>
 
             <label className="mt-6 flex cursor-pointer items-start gap-3 text-sm text-white/70">
@@ -276,7 +403,7 @@ export default function CheckoutPage() {
                 onChange={(event) =>
                   setAcceptedReview(event.target.checked)
                 }
-                className="mt-1 accent-orange-500"
+                className="mt-1 h-4 w-4 accent-orange-500"
               />
 
               <span>
@@ -285,28 +412,33 @@ export default function CheckoutPage() {
               </span>
             </label>
 
-            
-<Button
-  type="submit"
-  disabled={checkoutMutation.isPending || !acceptedReview}
-  className="mt-6 w-full bg-orange-500 px-4 py-6 font-bold text-black transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-50"
->
-  {checkoutMutation.isPending
-    ? 'Processando pedido...'
-    : 'Confirmar pedido'}
-</Button>
+            <Button
+              type="submit"
+              disabled={
+                checkoutMutation.isPending || !acceptedReview
+              }
+              className="mt-6 w-full bg-orange-500 px-4 py-6 font-bold text-black transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {checkoutMutation.isPending
+                ? 'Processando pedido...'
+                : 'Confirmar pedido'}
+            </Button>
 
+            {checkoutMutation.isError && (
+              <p
+                role="alert"
+                className="mt-4 text-sm leading-relaxed text-red-400"
+              >
+                {axios.isAxiosError(checkoutMutation.error) &&
+                checkoutMutation.error.response?.status === 409
+                  ? 'O preço de um ou mais NFTs mudou. Volte ao carrinho, revise os valores e tente novamente.'
+                  : 'Não foi possível processar o pedido. Seus itens continuam no carrinho. Tente novamente.'}
+              </p>
+            )}
 
-            
-{checkoutMutation.isError && (
-  <p role="alert" className="mt-4 text-sm text-red-400">
-    {axios.isAxiosError(checkoutMutation.error) &&
-    checkoutMutation.error.response?.status === 409
-      ? 'O preço de um ou mais NFTs mudou. Volte ao carrinho, revise os valores e tente novamente.'
-      : 'Não foi possível processar o pedido. Seus itens continuam no carrinho. Tente novamente.'}
-  </p>
-)}
-
+            <p className="mt-4 text-center text-xs leading-relaxed text-white/40">
+              Ao confirmar, você conclui apenas uma compra simulada.
+            </p>
           </aside>
         </form>
       </div>
