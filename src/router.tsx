@@ -7,6 +7,7 @@ import {
 
 import HomePage from './pages/Homepage'
 import Header from './components/layout/Header'
+import NftDetailsPage from './pages/nftDetailsPage'
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -23,7 +24,16 @@ const homeRoute = createRoute({
   component: HomePage,
 })
 
-const routeTree = rootRoute.addChildren([homeRoute])
+const nftDetailsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/nft/$nftId',
+  component: NftDetailsPage,
+})
+
+const routeTree = rootRoute.addChildren([
+  homeRoute,
+  nftDetailsRoute,
+])
 
 export const router = createRouter({
   routeTree,
