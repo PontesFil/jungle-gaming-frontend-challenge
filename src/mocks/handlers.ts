@@ -87,25 +87,25 @@ Array.isArray(expectedPrices) ||
       )
     }
     
-    const priceChanged = nftIds.some((id) => {
-  const nft = mockNfts.find((item) => item.id === id)
+    
+const invalidItems = nftIds.some((id) => {
+  const nftExists = mockNfts.some((nft) => nft.id === id)
   const expectedPrice = expectedPrices[id]
 
   return (
-    !nft ||
+    !nftExists ||
     typeof expectedPrice !== 'number' ||
     !Number.isFinite(expectedPrice) ||
-    Math.abs(expectedPrice - nft.price) > 0.000001
+    expectedPrice <= 0
   )
 })
 
-if (priceChanged) {
+if (invalidItems) {
   return HttpResponse.json(
     {
-      message:
-        'O preço de um ou mais NFTs mudou. Revise o carrinho antes de continuar.',
+      message: 'O pedido contém NFTs ou preços inválidos.',
     },
-    { status: 409 },
+    { status: 400 },
   )
 }
 
@@ -123,17 +123,6 @@ if (priceChanged) {
         orderId: existingOrder.orderId,
         status: existingOrder.status,
       })
-    }
-
-    const validItems = nftIds.every((id) =>
-      mockNfts.some((nft) => nft.id === id),
-    )
-
-    if (!validItems) {
-      return HttpResponse.json(
-        { message: 'O pedido contém NFTs inválidos.' },
-        { status: 400 },
-      )
     }
 
     const order: StoredOrder = {
