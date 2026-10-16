@@ -125,7 +125,7 @@ if (invalidItems) {
       })
     }
 
-    const order: StoredOrder = {
+     const order: StoredOrder = {
       orderId: crypto.randomUUID(),
       ownerEmail,
       nftIds,
@@ -186,3 +186,4 @@ function orderKey(order: StoredOrder): string | undefined {
     order as StoredOrder & { idempotencyKey?: string }
   ).idempotencyKey
 }
+

@@ -1,25 +1,35 @@
-
 import { test, expect } from '@playwright/test'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
   await page.evaluate(() => localStorage.clear())
+  await page.reload()
 })
 
 test('deve exigir login antes de finalizar a compra', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/nft/1')
 
-  await page.getByText('Emerald Ape').first().click()
+  await expect(
+    page.getByRole('heading', {
+      name: 'Emerald Ape',
+      exact: true,
+    }),
+  ).toBeVisible()
 
   await page.getByRole('button', {
     name: /adicionar ao carrinho/i,
   }).click()
 
   await page.getByRole('link', {
-    name: /carrinho/i,
+    name: 'Ver carrinho →',
+    exact: true,
   }).click()
 
-  await expect(page.getByText('Emerald Ape')).toBeVisible()
+  await expect(page).toHaveURL(/\/cart$/)
+
+  await expect(
+    page.getByText('Emerald Ape'),
+  ).toBeVisible()
 
   await page.getByRole('button', {
     name: /ir para pagamento/i,
@@ -38,16 +48,22 @@ test('deve permitir finalizar a compra após login', async ({ page }) => {
     name: /^entrar$/i,
   }).click()
 
-  await page.goto('/')
+  await page.goto('/nft/1')
 
-  await page.getByText('Emerald Ape').first().click()
+  await expect(
+    page.getByRole('heading', {
+      name: 'Emerald Ape',
+      exact: true,
+    }),
+  ).toBeVisible()
 
   await page.getByRole('button', {
     name: /adicionar ao carrinho/i,
   }).click()
 
   await page.getByRole('link', {
-    name: /carrinho/i,
+    name: 'Ver carrinho →',
+    exact: true,
   }).click()
 
   await page.getByRole('button', {
@@ -57,14 +73,15 @@ test('deve permitir finalizar a compra após login', async ({ page }) => {
   await expect(page).toHaveURL(/\/checkout$/)
 
   await expect(
-    page.getByRole('heading', { name: /finalizar pagamento/i }),
+    page.getByRole('heading', {
+      name: /finalizar pagamento/i,
+    }),
   ).toBeVisible()
 
   const confirmButton = page.getByRole('button', {
     name: /confirmar pedido/i,
   })
 
-  // A compra não pode ser enviada antes da revisão.
   await expect(confirmButton).toBeDisabled()
 
   await page.getByLabel('Nome completo').fill('Colecionador Teste')
