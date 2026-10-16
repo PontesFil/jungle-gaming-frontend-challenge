@@ -1,135 +1,120 @@
-# Arquitetura — Kurio NFT Marketplace
+# Kurio — NFT Marketplace
 
-## Visão geral
+Aplicação frontend de marketplace de NFTs desenvolvida para o desafio técnico da Jungle Gaming.
 
-O Kurio é uma aplicação React com TypeScript construída sobre Vite. O frontend consome uma API REST simulada pelo Mock Service Worker (MSW) e recebe eventos de atualização de preços de um servidor Socket.IO separado.
+O projeto demonstra navegação entre catálogo, detalhes de NFTs, carrinho e checkout simulado, com comunicação em tempo real via Socket.IO, API REST mockada com MSW e testes E2E com Playwright.
 
-O objetivo desta arquitetura é demonstrar a separação entre interface, estado de aplicação, serviços de dados e comunicação em tempo real.
+## Demonstração
 
-## Organização do projeto
+- **Aplicação:** https://jungle-gaming-frontend-challenge-beta.vercel.app/
+- **Servidor Socket.IO:** https://jungle-gaming-frontend-challenge.onrender.com/
+- **Health check:** https://jungle-gaming-frontend-challenge.onrender.com/health
 
-```text
-src/
-├── components/
-│   ├── home/
-│   └── layout/
-├── contexts/
-│   ├── AuthContext.tsx
-│   └── CartContext.tsx
-├── data/
-│   └── mockNfts.ts
-├── hooks/
-│   └── useRealtimePrices.ts
-├── mocks/
-│   ├── browser.ts
-│   └── handlers.ts
-├── pages/
-├── services/
-│   ├── checkoutService.ts
-│   ├── nftService.ts
-│   └── socket.ts
-├── types/
-├── main.tsx
-└── router.tsx
+> Este projeto utiliza dados simulados. Não realiza transações reais com criptomoedas ou carteiras digitais.
 
-server/
-└── index.ts
+## Tecnologias
 
-tests/
-├── catalog.spec.ts
-└── checkout.spec.ts
+- React e TypeScript
+- Vite
+- Tailwind CSS
+- TanStack Router
+- TanStack Query
+- Axios
+- Mock Service Worker (MSW)
+- Socket.IO
+- Playwright
+
+## Funcionalidades implementadas
+
+- Catálogo de NFTs com busca por nome ou criador e ordenação por preço ou nome.
+- Página de detalhes de NFT.
+- Carrinho com adição e remoção de itens.
+- Atualização de preços em tempo real no catálogo e no carrinho.
+- Login e cadastro simulados.
+- Checkout com dados do colecionador, seleção simulada de carteira e rede e revisão do pedido.
+- Criação de pedidos por API mockada com chave de idempotência.
+- Consulta do pedido pela API antes de exibir a confirmação.
+- Persistência local do carrinho, sessão simulada e pedidos.
+- Testes automatizados dos principais fluxos de navegação e compra.
+
+## Executando localmente
+
+**Pré-requisitos:** Node.js e npm compatíveis com a versão do Vite utilizada no projeto.
+
+Clone o repositório:
+
+```bash
+git clone https://github.com/PontesFil/jungle-gaming-frontend-challenge.git
+cd jungle-gaming-frontend-challenge
+npm ci
 ```
 
-## Navegação
+Crie um arquivo `.env` na raiz:
 
-O TanStack Router gerencia as rotas da aplicação, incluindo catálogo, detalhes do NFT, carrinho, checkout, autenticação e confirmação de pedidos.
+```env
+VITE_ENABLE_MOCKS=true
+VITE_SOCKET_URL=http://localhost:3001
+```
 
-O deploy na Vercel utiliza uma regra de rewrite para permitir acesso direto às rotas do frontend sem retornar erro 404.
+Inicie o servidor Socket.IO em um terminal:
 
-## API REST e MSW
+```bash
+npx tsx server/index.ts
+```
 
-O Mock Service Worker intercepta requisições HTTP no navegador e fornece respostas simuladas.
+Em outro terminal, inicie o frontend:
 
-Entre os endpoints utilizados estão:
+```bash
+npm run dev
+```
 
-| Método | Endpoint | Responsabilidade |
-|---|---|---|
-| GET | `/api/nfts` | Consultar catálogo |
-| POST | `/api/checkout` | Criar pedido simulado |
-| GET | `/api/orders/:orderId` | Consultar pedido existente |
+Acesse o endereço informado pelo Vite no terminal.
 
-O Axios centraliza as chamadas HTTP nos módulos de serviço.
+## Testes e validação
 
-A confirmação de compra consulta a API antes de apresentar o estado de sucesso. A criação de pedidos utiliza uma chave de idempotência para evitar a criação duplicada do mesmo pedido em tentativas repetidas.
+Execute o build de produção:
 
-Os pedidos são armazenados localmente no navegador. Esse mecanismo não representa um backend persistente de produção.
+```bash
+npm run build
+```
 
-## Estado e cache
+Execute os testes E2E:
 
-O TanStack Query gerencia os dados assíncronos do catálogo e a consulta de pedidos.
+```bash
+npx playwright test
+```
 
-O `CartContext` gerencia os itens do carrinho, enquanto o `AuthContext` mantém a sessão simulada.
+Para abrir a interface de execução dos testes:
 
-O `localStorage` é utilizado para preservar dados entre atualizações da página. A sessão e o carrinho não possuem isolamento seguro por usuário, e a autenticação não deve ser considerada adequada para produção.
+```bash
+npx playwright test --ui
+```
 
-## Comunicação em tempo real
+## Arquitetura
 
-O servidor Node.js com Socket.IO mantém preços de NFTs em memória e emite atualizações periódicas.
+Consulte [ARCHITECTURE.md](./ARCHITECTURE.md) para conhecer a organização do código, o funcionamento dos mocks, a comunicação em tempo real e as decisões técnicas.
 
-Eventos utilizados:
+## Limitações conhecidas
 
-- `prices:snapshot`: envia um conjunto de preços ao conectar.
-- `nft:price-updated`: informa alterações de preço.
+Este projeto representa uma implementação parcial do escopo do desafio.
 
-O hook `useRealtimePrices` recebe os eventos e atualiza o cache do TanStack Query. O `CartContext` também escuta esses eventos para atualizar os preços dos itens adicionados.
+- A autenticação é simulada no navegador; não há validação real de credenciais por um servidor.
+- Os dados de pedidos são persistidos no `localStorage`, sem segurança ou compartilhamento entre dispositivos.
+- O carrinho ainda não possui gerenciamento de quantidades, cupons ou taxas de rede.
+- A busca e a ordenação não são sincronizadas com parâmetros da URL; não há paginação.
+- A seleção de carteiras é ilustrativa, sem conexão com carteiras reais.
+- Não foram implementadas telas completas de perfil e gerenciamento de carteiras.
+- O servidor Socket.IO demonstra atualizações de preços, mas ainda não implementa o protocolo completo de eventos versionados e revalidação de pedidos.
+- Os dados do servidor de preços e da API mockada não compartilham uma fonte única de verdade.
+- Ainda não há suíte dedicada de regressão visual ou relatório Lighthouse documentado.
+- A interface utiliza Tailwind CSS, mas ainda não incorpora componentes shadcn/ui.
 
-O cliente utiliza a URL configurada por `VITE_SOCKET_URL` e possui suporte básico à reconexão.
+## Hospedagem
 
-### Limitações do tempo real
+O frontend está hospedado na Vercel, e o servidor Socket.IO, no Render. A configuração do frontend utiliza `VITE_SOCKET_URL` para apontar para o servidor publicado.
 
-A implementação atual é demonstrativa. Os preços são atualizados aleatoriamente no servidor Socket.IO, enquanto o MSW possui dados próprios.
+Em hospedagem gratuita, o servidor pode entrar em estado de inatividade, causando atraso na primeira conexão.
 
-Ainda são necessárias melhorias para implementar um fluxo totalmente consistente, incluindo versionamento de eventos, tratamento de eventos duplicados, sincronização entre REST e Socket.IO e revalidação do pedido no servidor.
+## Contexto
 
-## Fluxo de compra
-
-1. O usuário navega pelo catálogo e acessa os detalhes de um NFT.
-2. Adiciona o item ao carrinho.
-3. Realiza login simulado, se necessário.
-4. Preenche os dados de checkout e revisa o pedido.
-5. O frontend envia `POST /api/checkout` com os IDs dos NFTs e a chave de idempotência.
-6. O MSW valida os dados e registra o pedido simulado.
-7. O frontend navega para a página de confirmação.
-8. A página consulta `GET /api/orders/:orderId`.
-9. O sucesso só é apresentado quando a consulta retorna um pedido confirmado para a sessão simulada.
-
-O checkout ainda não realiza uma revalidação transacional de preço e disponibilidade no momento da confirmação.
-
-## Testes
-
-O Playwright é utilizado para testar fluxos essenciais, como visualização do catálogo, abertura de detalhes, exigência de login e conclusão do checkout.
-
-O TypeScript e o build de produção também fazem parte das verificações locais.
-
-A cobertura atual não inclui todos os estados de erro, múltiplos usuários, regressão visual ou cenários avançados de reconexão.
-
-## Deploy
-
-**Frontend:** Vercel
-
-**Socket.IO:** Render
-
-Variáveis de ambiente utilizadas:
-
-| Variável | Serviço | Finalidade |
-|---|---|---|
-| `VITE_ENABLE_MOCKS` | Frontend | Habilitar MSW |
-| `VITE_SOCKET_URL` | Frontend | Endereço do servidor Socket.IO |
-| `FRONTEND_URL` | Servidor | Autorizar origem no CORS |
-| `PORT` | Servidor | Porta HTTP definida pelo ambiente |
-
-O endpoint `/health` permite verificar a disponibilidade básica do servidor Socket.IO.
-
-## Melhorias futuras
-
-As próximas evoluções incluem autenticação via API, isolamento de dados por usuário, revalidação transacional do checkout, sincronização consistente de preços, gerenciamento de carteiras, filtros por URL, paginação, testes de regressão visual, acessibilidade e avaliação de desempenho com Lighthouse.
+Desenvolvido como exercício prático de arquitetura frontend, integração REST, comunicação em tempo real, testes e deploy.
