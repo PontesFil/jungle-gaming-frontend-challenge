@@ -4,6 +4,8 @@ import { useMutation } from '@tanstack/react-query'
 import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
 import { createCheckout } from '../services/checkoutService'
+import axios from 'axios'
+import { Button } from '@/components/ui/button'
 
 export default function CheckoutPage() {
   const { items, clearCart } = useCart()
@@ -53,9 +55,12 @@ export default function CheckoutPage() {
     }
 
     checkoutMutation.mutate({
-      nftIds: items.map((nft) => nft.id),
-      idempotencyKey,
-    })
+  nftIds: items.map((nft) => nft.id),
+  idempotencyKey,
+  expectedPrices: Object.fromEntries(
+    items.map((nft) => [nft.id, nft.price]),
+  ),
+})
   }
 
   if (!user) {
@@ -280,25 +285,28 @@ export default function CheckoutPage() {
               </span>
             </label>
 
-            <button
-              type="submit"
-              disabled={
-                checkoutMutation.isPending ||
-                !acceptedReview
-              }
-              className="mt-6 w-full rounded-lg bg-orange-500 px-4 py-3 font-bold text-black transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {checkoutMutation.isPending
-                ? 'Processando pedido...'
-                : 'Confirmar pedido'}
-            </button>
+            
+<Button
+  type="submit"
+  disabled={checkoutMutation.isPending || !acceptedReview}
+  className="mt-6 w-full bg-orange-500 px-4 py-6 font-bold text-black transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {checkoutMutation.isPending
+    ? 'Processando pedido...'
+    : 'Confirmar pedido'}
+</Button>
 
-            {checkoutMutation.isError && (
-              <p role="alert" className="mt-4 text-sm text-red-400">
-                Não foi possível processar o pedido. Seus itens
-                continuam no carrinho. Tente novamente.
-              </p>
-            )}
+
+            
+{checkoutMutation.isError && (
+  <p role="alert" className="mt-4 text-sm text-red-400">
+    {axios.isAxiosError(checkoutMutation.error) &&
+    checkoutMutation.error.response?.status === 409
+      ? 'O preço de um ou mais NFTs mudou. Volte ao carrinho, revise os valores e tente novamente.'
+      : 'Não foi possível processar o pedido. Seus itens continuam no carrinho. Tente novamente.'}
+  </p>
+)}
+
           </aside>
         </form>
       </div>

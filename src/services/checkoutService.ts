@@ -4,6 +4,7 @@ import axios from 'axios'
 interface CheckoutPayload {
   nftIds: string[]
   idempotencyKey: string
+  expectedPrices: Record<string, number>
 }
 
 interface CheckoutResponse {

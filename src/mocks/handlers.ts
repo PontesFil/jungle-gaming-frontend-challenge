@@ -2,10 +2,13 @@
 import { http, HttpResponse, delay } from 'msw'
 import { mockNfts } from '../data/mockNfts'
 
+
 interface CheckoutRequest {
   nftIds: string[]
   idempotencyKey: string
+  expectedPrices: Record<string, number>
 }
+
 
 interface StoredOrder {
   orderId: string
@@ -66,13 +69,16 @@ export const handlers = [
       )
     }
 
-    const { nftIds, idempotencyKey } = body
+    const { nftIds, idempotencyKey, expectedPrices } = body
 
     if (
       typeof idempotencyKey !== 'string' ||
       !idempotencyKey.trim() ||
       !Array.isArray(nftIds) ||
       nftIds.length === 0 ||
+      !expectedPrices ||
+typeof expectedPrices !== 'object' ||
+Array.isArray(expectedPrices) ||
       !nftIds.every((id) => typeof id === 'string')
     ) {
       return HttpResponse.json(
@@ -80,6 +86,28 @@ export const handlers = [
         { status: 400 },
       )
     }
+    
+    const priceChanged = nftIds.some((id) => {
+  const nft = mockNfts.find((item) => item.id === id)
+  const expectedPrice = expectedPrices[id]
+
+  return (
+    !nft ||
+    typeof expectedPrice !== 'number' ||
+    !Number.isFinite(expectedPrice) ||
+    Math.abs(expectedPrice - nft.price) > 0.000001
+  )
+})
+
+if (priceChanged) {
+  return HttpResponse.json(
+    {
+      message:
+        'O preço de um ou mais NFTs mudou. Revise o carrinho antes de continuar.',
+    },
+    { status: 409 },
+  )
+}
 
     const orders = getOrders()
 
