@@ -59,7 +59,6 @@ return {
   }
 
   const first = await checkout(['1'], { '1': 1.19 })
-  console.log('Primeira resposta do checkout:', first)
   expect(first.status).toBe(200)
 
   const repeated = await checkout(['1'], { '1': 1.19 })

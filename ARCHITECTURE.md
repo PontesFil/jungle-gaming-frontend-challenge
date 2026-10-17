@@ -36,8 +36,10 @@ server/
 └── index.ts
 
 tests/
+├── auth.spec.ts
 ├── catalog.spec.ts
-└── checkout.spec.ts
+├── checkout.spec.ts
+└── idempotency.spec.ts
 ```
 
 ## Navegação
@@ -52,11 +54,17 @@ O Mock Service Worker intercepta requisições HTTP no navegador e fornece respo
 
 Entre os endpoints utilizados estão:
 
+
 | Método | Endpoint | Responsabilidade |
 |---|---|---|
-| GET | `/api/nfts` | Consultar catálogo |
-| POST | `/api/checkout` | Criar pedido simulado |
-| GET | `/api/orders/:orderId` | Consultar pedido existente |
+| GET | `/api/nfts` | Retorna o catálogo simulado de NFTs |
+| POST | `/api/auth/register` | Cadastra uma conta simulada; retorna 409 para e-mail duplicado |
+| POST | `/api/auth/login` | Valida credenciais simuladas; retorna 401 para credenciais inválidas |
+| POST | `/api/checkout` | Valida a estrutura do pedido e aplica a regra de idempotência |
+| GET | `/api/orders/:orderId` | Consulta um pedido associado à sessão simulada |
+
+O cadastro e o login são interceptados pelo MSW. As contas são armazenadas no navegador e as senhas são transformadas em hashes SHA-256 para a simulação. Isso não equivale ao armazenamento seguro de senhas ou à autenticação de um backend de produção.
+O checkout utiliza uma chave de idempotência. Repetir uma requisição com a mesma chave, os mesmos NFTs e os mesmos preços esperados retorna o pedido original. Reutilizar a chave com itens ou preços diferentes retorna HTTP 409. A verificação não representa revalidação dos preços atuais do servidor.
 
 O Axios centraliza as chamadas HTTP nos módulos de serviço.
 
@@ -70,7 +78,8 @@ O TanStack Query gerencia os dados assíncronos do catálogo e a consulta de ped
 
 O `CartContext` gerencia os itens do carrinho, enquanto o `AuthContext` mantém a sessão simulada.
 
-O `localStorage` é utilizado para preservar dados entre atualizações da página. A sessão e o carrinho não possuem isolamento seguro por usuário, e a autenticação não deve ser considerada adequada para produção.
+O `AuthContext` mantém uma sessão demonstrativa no localStorage', utilizando a chave kurio-user. O cadastro e o login consultam endpoints simulados pelo MSW. O CartContext persiste o carrinho por conta simulada, enquanto os pedidos são armazenados localmente e consultados por meio da API mockada.
+A separação dos dados depende de informações controladas pelo próprio navegador. Não há tokens de autenticação, sessão validada no servidor ou isolamento de segurança entre usuários. Esses mecanismos servem exclusivamente à demonstração.
 
 ## Comunicação em tempo real
 
@@ -105,13 +114,36 @@ Ainda são necessárias melhorias para implementar um fluxo totalmente consisten
 
 O checkout ainda não realiza uma revalidação transacional de preço e disponibilidade no momento da confirmação.
 
+
 ## Testes
 
-O Playwright é utilizado para testar fluxos essenciais, como visualização do catálogo, abertura de detalhes, exigência de login e conclusão do checkout.
+O projeto utiliza Playwright para testes E2E.
 
-O TypeScript e o build de produção também fazem parte das verificações locais.
+A suíte contém oito testes automatizados que verificam:
 
-A cobertura atual não inclui todos os estados de erro, múltiplos usuários, regressão visual ou cenários avançados de reconexão.
+- Exibição do catálogo.
+- Navegação para os detalhes de um NFT.
+- Exigência de login antes da compra.
+- Finalização do checkout após autenticação.
+- Cadastro de usuário e persistência da sessão simulada.
+- Rejeição de login com senha incorreta.
+- Rejeição de cadastro com e-mail duplicado.
+- Idempotência do checkout, incluindo reutilização válida da chave e rejeição de alterações nos itens ou preços.
+
+Comandos disponíveis:
+
+```bash
+npm run typecheck
+npm run lint
+npm run build
+npm run test:e2e
+npm run lighthouse
+```
+
+O Lighthouse CI audita a compilação local e salva relatórios em `lighthouse-reports/`.
+
+A cobertura não contempla todos os cenários de falha, regressão visual ou reconexão avançada do Socket.IO.
+
 
 ## Deploy
 
@@ -132,4 +164,4 @@ O endpoint `/health` permite verificar a disponibilidade básica do servidor Soc
 
 ## Melhorias futuras
 
-As próximas evoluções incluem autenticação via API, isolamento de dados por usuário, revalidação transacional do checkout, sincronização consistente de preços, gerenciamento de carteiras, filtros por URL, paginação, testes de regressão visual, acessibilidade e avaliação de desempenho com Lighthouse.
+As próximas evoluções incluem autenticação segura em backend real, isolamento de dados por usuário, revalidação transacional do checkout, sincronização consistente de preços, gerenciamento de carteiras, filtros por URL, paginação, testes de regressão visual, acessibilidade e avaliação de desempenho com Lighthouse.

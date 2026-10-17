@@ -36,6 +36,7 @@ O projeto demonstra uma jornada de navegação e compra simulada de NFTs, com ca
 - Checkout com dados do colecionador, seleção simulada de carteira e rede e revisão do pedido.
 - Validação de itens e estrutura dos preços enviados ao checkout mockado.
 - Criação de pedidos via API mockada, com chave de idempotência.
+- Reutilização da chave de idempotência com os mesmos NFTs e preços retorna o pedido original; alterações nos itens ou preços com a mesma chave retornam HTTP 409.
 - Consulta do pedido pela API antes da exibição da confirmação.
 - Persistência local da sessão simulada e dos pedidos.
 - Integração de componente Button do shadcn/ui no checkout.
@@ -66,7 +67,7 @@ VITE_SOCKET_URL=http://localhost:3001
 Inicie o servidor Socket.IO em um terminal:
 
 ```bash
-npx tsx server/index.ts
+npm run dev:server
 ```
 
 Em outro terminal, inicie o frontend:
@@ -77,27 +78,52 @@ npm run dev
 
 Acesse o endereço informado pelo Vite.
 
+
 ## Testes e validação
 
-Execute o build de produção:
+Os comandos abaixo permitem executar as verificações do projeto:
 
 ```bash
+# Verificação de tipos
+npm run typecheck
+
+# Análise estática
+npm run lint
+
+# Build de produção
 npm run build
-```
 
-Execute os testes E2E:
+# Testes E2E
+npm run test:e2e
 
-```bash
-npx playwright test
-```
-
-Para abrir a interface de execução:
-
-```bash
+# Interface interativa do Playwright
 npx playwright test --ui
+
+# Auditoria Lighthouse CI (após o build)
+npm run lighthouse
+
+# Preview da compilação
+npm run preview
 ```
 
-A suíte atual contém quatro testes E2E, executados com sucesso durante o desenvolvimento. Também foram realizadas verificações manuais de persistência do carrinho, alternância entre contas simuladas e finalização de compra.
+A suíte atual contém oito testes E2E, cobrindo catálogo, detalhes, autenticação simulada, checkout e idempotência. Os oito testes foram executados com sucesso em 17/10/2026.
+
+
+## Reset dos dados simulados
+
+Para reiniciar o ambiente de demonstração:
+
+1. Abra a aplicação no navegador.
+2. Acesse as ferramentas de desenvolvedor.
+3. Na aba Application (Aplicativo), abra Local Storage.
+4. Selecione a origem da aplicação.
+5. Limpe os dados armazenados.
+6. Atualize a página.
+
+Isso remove as contas simuladas, a sessão, os carrinhos e os pedidos persistidos localmente naquela origem.
+
+**Atenção:** a limpeza é irreversível para os dados locais daquela origem e não altera o servidor Socket.IO.
+
 
 ## Auditoria Lighthouse
 
@@ -129,7 +155,7 @@ Consulte [ARCHITECTURE.md](./ARCHITECTURE.md) para conhecer a estrutura do proje
 
 Este projeto representa uma implementação parcial do escopo do desafio.
 
-- A autenticação é simulada no navegador, sem validação real de credenciais por um servidor.
+- O cadastro e o login utilizam endpoints REST simulados pelo MSW, com verificação das credenciais armazenadas localmente. A sessão permanece no localStorage, sem tokens ou autenticação validada por um backend seguro. Não é uma implementação apropriada para produção.
 - A separação dos carrinhos é realizada por identificador de usuário no `localStorage`; não constitui isolamento de segurança entre contas autenticadas em um backend.
 - Os dados dos pedidos são persistidos no `localStorage`, sem armazenamento remoto seguro ou sincronização entre dispositivos.
 - O carrinho ainda não possui gerenciamento de quantidades, cupons ou taxas de rede.
