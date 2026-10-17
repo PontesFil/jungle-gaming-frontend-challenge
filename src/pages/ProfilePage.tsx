@@ -1,4 +1,5 @@
 
+import { useState, type FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
 import {
   ArrowRight,
@@ -9,6 +10,7 @@ import {
 
 import { useAuth } from '../contexts/AuthContext'
 import AccountSidebar from '../components/account/AccountSidebar'
+import { getDisplayNameError } from '../utils/displayName'
 
 const fieldClass =
   'flex min-h-11 w-full items-center rounded-xl border border-[#493025] bg-[#170f0c] px-4 py-3 font-mono text-xs text-[#f5eee7] sm:text-sm md:min-h-12 md:rounded-sm'
@@ -17,7 +19,39 @@ const labelClass =
   'mb-2 block font-mono text-xs text-[#d9c6b6] md:mb-2.5'
 
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, updateDisplayName } = useAuth()
+  const [name, setName] = useState(user?.name ?? '')
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+
+  async function handleSaveName(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (isSaving) return
+
+    setError('')
+    setSuccess('')
+
+    const validationError = getDisplayNameError(name)
+
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+
+    setIsSaving(true)
+
+    try {
+      await updateDisplayName(name)
+      setName(name.trim())
+      setSuccess('Nome atualizado com sucesso.')
+    } catch {
+      setError('Não foi possível atualizar seu nome. Tente novamente.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   if (!user) {
     return (
@@ -135,17 +169,46 @@ export default function ProfilePage() {
               </h2>
 
               <div className="mt-5 grid gap-x-7 gap-y-5 sm:grid-cols-2 md:mt-6 md:gap-y-6">
-                <div>
-                  <p className={labelClass}>
+                <form onSubmit={handleSaveName} noValidate aria-busy={isSaving}>
+                  <label htmlFor="display-name" className={labelClass}>
                     Nome de exibição
+                  </label>
+
+                  <input
+                    id="display-name"
+                    type="text"
+                    autoComplete="name"
+                    required
+                    value={name}
+                    onChange={(event) => {
+                      setName(event.target.value)
+                      setError('')
+                      setSuccess('')
+                    }}
+                    disabled={isSaving}
+                    aria-invalid={Boolean(error)}
+                    aria-describedby={error ? 'display-name-error' : undefined}
+                    className={fieldClass}
+                  />
+
+                  {error && (
+                    <p id="display-name-error" role="alert" className="mt-2 text-xs text-red-300">
+                      {error}
+                    </p>
+                  )}
+
+                  <p role="status" className="mt-2 text-xs text-[#d9c6b6]">
+                    {success}
                   </p>
 
-                  <div className={fieldClass}>
-                    <span className="min-w-0 break-words">
-                      {user.name}
-                    </span>
-                  </div>
-                </div>
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="mt-3 rounded-sm bg-[#d9914d] px-5 py-3 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isSaving ? 'Salvando...' : 'Salvar nome'}
+                  </button>
+                </form>
 
                 <div>
                   <p className={labelClass}>

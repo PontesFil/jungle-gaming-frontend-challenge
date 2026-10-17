@@ -1,6 +1,7 @@
 
 import { http, HttpResponse, delay } from 'msw'
 import { mockNfts } from '../data/mockNfts'
+import { getDisplayNameError } from '../utils/displayName'
 
 
 interface CheckoutRequest {
@@ -202,6 +203,49 @@ export const handlers = [
     })
   }),
 
+
+  http.patch('/api/auth/me', async ({ request }) => {
+    await delay(300)
+
+    const email = getCurrentEmail()
+    const accounts = getAccounts()
+    const account = accounts.find((item) => item.email === email)
+
+    if (!account) {
+      return HttpResponse.json(
+        { message: 'Faça login para editar seu nome.' },
+        { status: 401 },
+      )
+    }
+
+    let body: { name?: unknown } | null
+
+    try {
+      body = await request.json() as { name?: unknown } | null
+    } catch {
+      return HttpResponse.json(
+        { message: 'Dados inválidos.' },
+        { status: 400 },
+      )
+    }
+
+    const validationError = getDisplayNameError(body?.name)
+
+    if (validationError) {
+      return HttpResponse.json(
+        { message: validationError },
+        { status: 400 },
+      )
+    }
+
+    const name = typeof body?.name === 'string' ? body.name.trim() : ''
+
+    saveAccounts(accounts.map((item) =>
+      item.email === account.email ? { ...item, name } : item,
+    ))
+
+    return HttpResponse.json({ user: { name, email: account.email } })
+  }),
 
   http.post('/api/checkout', async ({ request }) => {
     await delay(700)

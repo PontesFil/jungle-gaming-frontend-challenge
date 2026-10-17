@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react'
 import axios from 'axios'
+import { getDisplayNameError } from '../utils/displayName'
 
 interface User {
   name: string
@@ -21,6 +22,7 @@ interface AuthContextType {
     password: string
   ) => Promise<boolean>
   logout: () => void
+  updateDisplayName: (name: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -81,13 +83,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function updateDisplayName(name: string): Promise<void> {
+    if (!user) {
+      throw new Error('Faça login para editar seu nome.')
+    }
+
+    const validationError = getDisplayNameError(name)
+
+    if (validationError) {
+      throw new Error(validationError)
+    }
+
+    const response = await axios.patch<{ user: User }>(
+      '/api/auth/me',
+      { name: name.trim() },
+    )
+
+    const savedUser = localStorage.getItem('kurio-user')
+    const currentUser = savedUser ? JSON.parse(savedUser) as User : null
+
+    if (currentUser?.email !== user.email) {
+      throw new Error('A sessão mudou. Faça login novamente.')
+    }
+
+    const updatedUser = { ...user, name: response.data.user.name }
+
+    localStorage.setItem('kurio-user', JSON.stringify(updatedUser))
+    setUser(updatedUser)
+  }
+
   function logout() {
     setUser(null)
     localStorage.removeItem('kurio-user')
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateDisplayName }}>
       {children}
     </AuthContext.Provider>
   )
