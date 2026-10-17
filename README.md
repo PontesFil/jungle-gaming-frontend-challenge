@@ -40,6 +40,9 @@ O projeto demonstra uma jornada de navegação e compra simulada de NFTs, com ca
 - Persistência local da sessão simulada e dos pedidos.
 - Integração de componente Button do shadcn/ui no checkout.
 - Testes E2E dos principais fluxos de navegação e compra.
+- Interface responsiva para desktop e dispositivos móveis, com adaptação das principais telas a partir do Figma.
+- Navegação inferior dedicada a dispositivos móveis.
+- Páginas demonstrativas de perfil e carteira, com informações da sessão e estado do carrinho.
 
 ## Executando localmente
 
@@ -132,7 +135,7 @@ Este projeto representa uma implementação parcial do escopo do desafio.
 - O carrinho ainda não possui gerenciamento de quantidades, cupons ou taxas de rede.
 - A busca e a ordenação não são sincronizadas com parâmetros da URL; não há paginação.
 - As carteiras e redes são selecionadas apenas de forma ilustrativa, sem integração com carteiras reais.
-- Não foram implementadas telas completas de perfil e gerenciamento de carteiras.
+- As páginas de perfil e carteira são demonstrativas e permitem visualizar informações da sessão, mas não oferecem edição de dados, conexão real de carteiras ou gerenciamento de credenciais.
 - O servidor Socket.IO demonstra atualizações de preços, mas não implementa o protocolo completo de eventos versionados ou eventos de atualização de pedidos.
 - O serviço de preços em tempo real e a API mockada não compartilham uma fonte autoritativa de preços. Por esse motivo, o checkout valida a estrutura dos valores enviados, mas **não realiza uma revalidação real de preços contra o servidor**.
 - Ainda não há uma suíte dedicada de testes de regressão visual.

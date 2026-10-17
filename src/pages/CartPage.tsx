@@ -1,6 +1,11 @@
 
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ShoppingBag, Trash2, ArrowRight, ArrowLeft } from 'lucide-react'
+import {
+  ShoppingBag,
+  Trash2,
+  ArrowRight,
+  ArrowLeft,
+} from 'lucide-react'
 
 import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
@@ -10,7 +15,10 @@ export default function CartPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  const total = items.reduce((sum, nft) => sum + nft.price, 0)
+  const total = items.reduce(
+    (sum, nft) => sum + nft.price,
+    0,
+  )
 
   function handleCheckout() {
     if (items.length === 0) return
@@ -24,12 +32,27 @@ export default function CartPage() {
   }
 
   return (
-    <main className="bg-[#140e0c] pb-24 text-[#f5eee7]">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Breadcrumb */}
+    <main className="min-h-[60vh] bg-[#140e0c] pb-28 text-[#f5eee7] md:pb-24">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+        {/* Cabeçalho mobile */}
+        <div className="relative mb-7 flex items-center justify-center md:hidden">
+          <Link
+            to="/"
+            aria-label="Voltar ao mercado"
+            className="absolute left-0 flex h-10 w-10 items-center justify-center rounded-full border border-[#493025] bg-[#241713] text-[#e9a15c] transition hover:bg-[#352219]"
+          >
+            <ArrowLeft size={19} />
+          </Link>
+
+          <h1 className="font-mono text-lg font-extrabold">
+            Carrinho de NFTs
+          </h1>
+        </div>
+
+        {/* Breadcrumb desktop */}
         <nav
           aria-label="Navegação estrutural"
-          className="mb-10 flex items-center gap-3 font-mono text-xs"
+          className="mb-10 hidden items-center gap-3 font-mono text-xs md:flex"
         >
           <Link
             to="/"
@@ -55,8 +78,8 @@ export default function CartPage() {
           </span>
         </nav>
 
-        {/* Cabeçalho */}
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-5 border-b border-[#493025] pb-7">
+        {/* Cabeçalho desktop */}
+        <div className="mb-10 hidden flex-wrap items-end justify-between gap-5 border-b border-[#493025] pb-7 md:flex">
           <div>
             <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#d9914d]">
               Sua coleção começa aqui
@@ -85,7 +108,7 @@ export default function CartPage() {
 
         {items.length === 0 ? (
           /* Carrinho vazio */
-          <section className="mx-auto flex max-w-2xl flex-col items-center py-16 text-center sm:py-24">
+          <section className="mx-auto flex max-w-2xl flex-col items-center py-12 text-center sm:py-24">
             <div
               aria-hidden="true"
               className="flex h-20 w-20 items-center justify-center rounded-full border border-[#67412c] bg-[#281914] text-[#d9914d]"
@@ -106,38 +129,39 @@ export default function CartPage() {
             <Link
               to="/"
               hash="explorar"
-              className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#d9914d] px-7 py-3.5 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67]"
+              className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#d9914d] px-7 py-3.5 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67] md:rounded-md"
             >
               Explorar NFTs
               <ArrowRight size={16} />
             </Link>
           </section>
         ) : (
-          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_350px] lg:gap-12">
+          <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_350px] lg:gap-12">
             {/* Lista de itens */}
             <section aria-label="Itens do carrinho">
-              <div className="mb-5 flex items-center justify-between">
-                <h2 className="font-mono text-sm font-bold">
+              <div className="mb-4 flex items-center justify-between md:mb-5">
+                <h2 className="font-mono text-xs font-bold text-[#b99674] md:text-sm md:text-[#f5eee7]">
                   Itens selecionados
                 </h2>
 
                 <span className="font-mono text-xs text-[#a98a70]">
-                  {items.length} {items.length === 1 ? 'item' : 'itens'}
+                  {items.length}{' '}
+                  {items.length === 1 ? 'item' : 'itens'}
                 </span>
               </div>
 
-              <div className="divide-y divide-[#493025] border-y border-[#493025]">
+              <div className="space-y-3 md:space-y-0 md:divide-y md:divide-[#493025] md:border-y md:border-[#493025]">
                 {items.map((nft) => (
                   <article
                     key={nft.id}
-                    className="flex gap-4 py-6 sm:gap-6"
+                    className="flex min-w-0 gap-3 rounded-2xl bg-[#281914] p-3 sm:gap-4 md:gap-6 md:rounded-none md:bg-transparent md:px-0 md:py-6"
                   >
                     {/* Imagem */}
                     <Link
                       to="/nft/$nftId"
                       params={{ nftId: nft.id }}
                       aria-label={`Ver detalhes de ${nft.name}`}
-                      className="h-28 w-28 shrink-0 overflow-hidden rounded-lg bg-[#35251e] sm:h-36 sm:w-36"
+                      className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-[#35251e] sm:h-28 sm:w-28 md:h-36 md:w-36 md:rounded-lg"
                     >
                       <img
                         src={nft.imageUrl}
@@ -147,13 +171,13 @@ export default function CartPage() {
                     </Link>
 
                     {/* Informações */}
-                    <div className="flex min-w-0 flex-1 flex-col justify-between gap-4">
+                    <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
                       <div>
-                        <p className="font-mono text-[11px] font-semibold uppercase tracking-wide text-[#d9914d]">
+                        <p className="font-mono text-[9px] font-semibold uppercase tracking-wide text-[#d9914d] md:text-[11px]">
                           {nft.category}
                         </p>
 
-                        <h3 className="mt-2 font-mono text-base font-extrabold sm:text-lg">
+                        <h3 className="mt-1 truncate font-mono text-xs font-extrabold sm:text-base md:mt-2 md:text-lg">
                           <Link
                             to="/nft/$nftId"
                             params={{ nftId: nft.id }}
@@ -163,18 +187,18 @@ export default function CartPage() {
                           </Link>
                         </h3>
 
-                        <p className="mt-2 text-xs text-[#a98a70]">
+                        <p className="mt-1 truncate text-[10px] text-[#a98a70] sm:text-xs md:mt-2">
                           Criado por {nft.creator}
                         </p>
                       </div>
 
-                      <div className="flex flex-wrap items-end justify-between gap-3">
+                      <div className="flex items-end justify-between gap-2">
                         <div>
-                          <p className="font-mono text-[11px] text-[#a98a70]">
+                          <p className="hidden font-mono text-[11px] text-[#a98a70] md:block">
                             Preço atual
                           </p>
 
-                          <p className="mt-1 font-mono text-lg font-extrabold text-[#e9a15c] sm:text-xl">
+                          <p className="font-mono text-base font-extrabold text-[#e9a15c] sm:text-lg md:mt-1 md:text-xl">
                             {nft.price.toFixed(2)}{' '}
                             <span className="text-xs">
                               {nft.currency}
@@ -186,10 +210,10 @@ export default function CartPage() {
                           type="button"
                           onClick={() => removeItem(nft.id)}
                           aria-label={`Remover ${nft.name} do carrinho`}
-                          className="inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold text-[#c8a18a] transition hover:bg-red-400/10 hover:text-red-300"
+                          className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#493025] text-[#c8a18a] transition hover:border-red-400/40 hover:bg-red-400/10 hover:text-red-300 md:h-auto md:w-auto md:gap-2 md:rounded-md md:border-0 md:px-3 md:py-2"
                         >
-                          <Trash2 size={15} />
-                          <span className="hidden sm:inline">
+                          <Trash2 size={16} />
+                          <span className="hidden text-xs font-semibold md:inline">
                             Remover
                           </span>
                         </button>
@@ -199,7 +223,8 @@ export default function CartPage() {
                 ))}
               </div>
 
-              <div className="mt-6 flex items-start gap-3 rounded-lg bg-[#241713] p-4">
+              {/* Aviso */}
+              <div className="mt-5 flex items-start gap-3 rounded-xl border border-[#493025]/50 bg-[#241713] p-4 md:mt-6 md:rounded-lg md:border-0">
                 <span
                   aria-hidden="true"
                   className="font-mono text-lg text-[#d9914d]"
@@ -217,13 +242,13 @@ export default function CartPage() {
             </section>
 
             {/* Resumo do pedido */}
-            <aside className="bg-[#241713] p-6 sm:p-7 lg:sticky lg:top-24">
+            <aside className="rounded-[28px] bg-[#241713] p-5 sm:p-7 lg:sticky lg:top-24 lg:rounded-none">
               <div className="border-b border-[#493025] pb-5">
-                <p className="font-mono text-xs font-semibold uppercase tracking-wider text-[#d9914d]">
+                <p className="font-mono text-[10px] font-semibold uppercase tracking-wider text-[#d9914d] md:text-xs">
                   Finalizar seleção
                 </p>
 
-                <h2 className="mt-2 font-mono text-xl font-extrabold">
+                <h2 className="mt-2 font-mono text-lg font-extrabold md:text-xl">
                   Resumo do pedido
                 </h2>
               </div>
@@ -263,7 +288,7 @@ export default function CartPage() {
                 <button
                   type="button"
                   onClick={handleCheckout}
-                  className="mt-7 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[#d9914d] px-4 py-4 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67]"
+                  className="mt-7 flex min-h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[#d9914d] px-4 py-4 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67] md:min-h-0 md:rounded-md"
                 >
                   Ir para pagamento
                   <ArrowRight size={16} />

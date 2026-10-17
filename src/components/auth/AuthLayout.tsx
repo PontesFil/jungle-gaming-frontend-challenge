@@ -46,11 +46,11 @@ export default function AuthLayout({
   children,
 }: AuthLayoutProps) {
   return (
-    <main className="relative isolate min-h-[calc(100vh-76px)] overflow-hidden bg-[#140e0c] text-[#f5eee7]">
-      {/* Marketplace ilustrativo ao fundo */}
+    <main className="relative isolate min-h-[100dvh] bg-[#140e0c] text-[#f5eee7] md:min-h-[calc(100vh-76px)] md:overflow-hidden">
+      {/* Fundo ilustrativo: somente desktop */}
       <div
         aria-hidden="true"
-        className="pointer-events-none mx-auto max-w-7xl px-4 py-10 opacity-45 sm:px-6 lg:px-8"
+        className="pointer-events-none mx-auto hidden max-w-7xl px-4 py-10 opacity-45 md:block md:px-6 lg:px-8"
       >
         <div className="grid gap-8 lg:grid-cols-[245px_minmax(0,1fr)]">
           <div className="hidden bg-[#241713] p-5 lg:block">
@@ -130,29 +130,39 @@ export default function AuthLayout({
         </div>
       </div>
 
-      {/* Camada escura */}
+      {/* Camada escura: somente desktop */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 z-10 bg-[#0d0806]/65"
+        className="pointer-events-none absolute inset-0 z-10 hidden bg-[#0d0806]/65 md:block"
       />
 
-      {/* Modal visual */}
-      <div className="absolute inset-0 z-20 flex items-start justify-center overflow-y-auto px-4 py-8 sm:items-center sm:py-12">
+      {/* Um único formulário, com layout responsivo */}
+      <div className="relative z-20 flex min-h-[100dvh] items-start justify-center px-7 py-12 md:absolute md:inset-0 md:min-h-0 md:items-center md:overflow-y-auto md:px-4 md:py-12">
         <section
           aria-labelledby="auth-title"
-          className="relative w-full max-w-[440px] border border-[#493025] bg-[#241713] shadow-[0_24px_100px_rgba(0,0,0,0.6)]"
+          className="relative w-full max-w-[400px] md:max-w-[440px] md:border md:border-[#493025] md:bg-[#241713] md:shadow-[0_24px_100px_rgba(0,0,0,0.6)]"
         >
+          {/* Logo mobile */}
+          <Link
+            to="/"
+            aria-label="Kurio — voltar ao mercado"
+            className="mx-auto mb-16 block w-fit font-mono text-3xl font-black tracking-[0.12em] text-[#f5eee7] md:hidden"
+          >
+            KURIO<span className="text-[#e9a15c]">.</span>
+          </Link>
+
+          {/* Fechar modal: desktop */}
           <Link
             to="/"
             aria-label="Fechar e voltar ao mercado"
-            className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center text-[#d9914d] transition hover:text-[#f5eee7]"
+            className="absolute right-4 top-4 hidden h-8 w-8 items-center justify-center text-[#d9914d] transition hover:text-[#f5eee7] md:flex"
           >
             <X size={18} />
           </Link>
 
-          <div className="px-6 pb-8 pt-10 sm:px-10">
-            {/* Abas */}
-            <div className="flex items-center justify-center gap-2 font-mono text-sm font-bold">
+          <div className="md:px-10 md:pb-8 md:pt-10">
+            {/* Abas desktop */}
+            <div className="hidden items-center justify-center gap-2 font-mono text-sm font-bold md:flex">
               <Link
                 to="/login"
                 aria-current={mode === 'login' ? 'page' : undefined}
@@ -180,19 +190,54 @@ export default function AuthLayout({
               </Link>
             </div>
 
-            <p
+            {/* Título mobile / descrição desktop */}
+            <h1
               id="auth-title"
-              className="mx-auto mt-8 max-w-xs text-center font-mono text-xs leading-6 text-[#d1b39a]"
+              className="mb-9 text-center font-mono text-lg font-extrabold text-[#f5eee7] md:mx-auto md:mb-0 md:mt-8 md:max-w-xs md:text-xs md:font-normal md:leading-6 md:text-[#d1b39a]"
             >
-              {mode === 'login'
-                ? 'Entre para gerenciar sua conta e continuar explorando o marketplace.'
-                : 'Crie seu perfil de colecionador e explore o universo Kurio.'}
-            </p>
+              <span className="md:hidden">
+                {mode === 'login'
+                  ? 'Entrar'
+                  : 'Criar perfil de colecionador'}
+              </span>
+
+              <span className="hidden md:inline">
+                {mode === 'login'
+                  ? 'Entre para gerenciar sua conta e continuar explorando o marketplace.'
+                  : 'Crie seu perfil de colecionador e explore o universo Kurio.'}
+              </span>
+            </h1>
 
             {children}
+
+            {/* Alternância mobile */}
+            <p className="mt-10 text-center font-mono text-xs leading-6 text-[#c9a17c] md:hidden">
+              {mode === 'login' ? (
+                <>
+                  Novo na Kurio?{' '}
+                  <Link
+                    to="/register"
+                    className="font-semibold text-[#e9a15c] hover:underline"
+                  >
+                    Crie uma conta
+                  </Link>
+                </>
+              ) : (
+                <>
+                  Já tem uma conta?{' '}
+                  <Link
+                    to="/login"
+                    className="font-semibold text-[#e9a15c] hover:underline"
+                  >
+                    Entre
+                  </Link>
+                </>
+              )}
+            </p>
           </div>
 
-          <div className="border-t border-[#493025] px-6 py-5 text-center sm:px-10">
+          {/* Rodapé informativo: somente desktop */}
+          <div className="hidden border-t border-[#493025] px-6 py-5 text-center md:block md:px-10">
             <p className="font-mono text-[11px] leading-5 text-[#96755f]">
               Autenticação demonstrativa.
               Nenhuma carteira real será conectada.

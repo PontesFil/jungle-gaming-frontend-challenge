@@ -12,10 +12,10 @@ import { useCart } from '../contexts/CartContext'
 import AccountSidebar from '../components/account/AccountSidebar'
 
 const fieldClass =
-  'flex min-h-12 w-full items-center rounded-sm border border-[#493025] bg-[#170f0c] px-4 py-3 font-mono text-sm text-[#9c806b]'
+  'flex min-h-11 w-full items-center rounded-xl border border-[#493025] bg-[#170f0c] px-4 py-3 font-mono text-xs text-[#9c806b] sm:text-sm md:min-h-12 md:rounded-sm'
 
 const labelClass =
-  'mb-2.5 block font-mono text-xs text-[#d9c6b6]'
+  'mb-2 block font-mono text-xs text-[#d9c6b6] md:mb-2.5'
 
 export default function WalletPage() {
   const { user } = useAuth()
@@ -23,7 +23,7 @@ export default function WalletPage() {
 
   if (!user) {
     return (
-      <main className="bg-[#140e0c] px-4 py-20 text-[#f5eee7]">
+      <main className="min-h-[70dvh] bg-[#140e0c] px-4 py-20 text-[#f5eee7]">
         <div className="mx-auto flex max-w-xl flex-col items-center text-center">
           <div className="flex h-20 w-20 items-center justify-center rounded-full border border-[#67412c] bg-[#281914] text-[#d9914d]">
             <LockKeyhole size={32} strokeWidth={1.5} />
@@ -40,7 +40,7 @@ export default function WalletPage() {
 
           <Link
             to="/login"
-            className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#d9914d] px-7 py-3.5 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67]"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#d9914d] px-7 py-3.5 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67] md:rounded-md"
           >
             Fazer login
             <ArrowRight size={16} />
@@ -51,12 +51,12 @@ export default function WalletPage() {
   }
 
   return (
-    <main className="bg-[#140e0c] pb-24 text-[#f5eee7]">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Breadcrumb */}
+    <main className="bg-[#140e0c] pb-16 text-[#f5eee7] md:pb-24">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 md:py-8 lg:px-8">
+        {/* Breadcrumb desktop */}
         <nav
           aria-label="Navegação estrutural"
-          className="mb-10 flex items-center gap-3 font-mono text-xs"
+          className="mb-10 hidden items-center gap-3 font-mono text-xs md:flex"
         >
           <Link
             to="/"
@@ -73,28 +73,37 @@ export default function WalletPage() {
         </nav>
 
         <div className="grid items-start gap-7 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <AccountSidebar activePage="wallet" />
+          {/* Menu lateral exclusivo do desktop */}
+          <div className="hidden lg:block">
+            <AccountSidebar activePage="wallet" />
+          </div>
 
           <div className="min-w-0">
             {/* Cabeçalho */}
-            <div className="mb-9 border-b border-[#493025] pb-6">
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#d9914d]">
+            <header className="mb-7 border-b border-[#493025] pb-6 md:mb-9">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#d9914d] md:text-xs">
                 Painel demonstrativo
               </p>
 
-              <h1 className="mt-3 font-mono text-2xl font-extrabold sm:text-3xl">
-                Carteira principal
-              </h1>
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <h1 className="font-mono text-2xl font-extrabold leading-tight sm:text-3xl">
+                  Carteira principal
+                </h1>
 
-              <p className="mt-3 text-sm leading-7 text-[#b99674]">
+                <span className="inline-flex shrink-0 items-center rounded-full border border-[#67412c] bg-[#281914] px-3 py-1.5 font-mono text-[10px] text-[#c9925d] md:hidden">
+                  Não conectada
+                </span>
+              </div>
+
+              <p className="mt-3 text-xs leading-6 text-[#b99674] md:text-sm md:leading-7">
                 Visualize como seria a configuração de uma
                 carteira digital no Kurio.
               </p>
-            </div>
+            </header>
 
-            {/* Configuração */}
+            {/* Dados da carteira */}
             <section aria-labelledby="wallet-settings-heading">
-              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+              <div className="mb-5 flex flex-wrap items-center justify-between gap-3 md:mb-6">
                 <h2
                   id="wallet-settings-heading"
                   className="font-mono text-base font-bold"
@@ -102,18 +111,18 @@ export default function WalletPage() {
                   Dados da carteira
                 </h2>
 
-                <span className="rounded-full border border-[#67412c] px-3 py-1.5 font-mono text-[11px] text-[#c9925d]">
+                <span className="hidden rounded-full border border-[#67412c] px-3 py-1.5 font-mono text-[11px] text-[#c9925d] md:inline-flex">
                   Não conectada
                 </span>
               </div>
 
-              <div className="grid gap-x-7 gap-y-6 sm:grid-cols-2">
+              <div className="grid gap-x-7 gap-y-5 sm:grid-cols-2 md:gap-y-6">
                 <div>
                   <p className={labelClass}>
                     Nome de exibição
                   </p>
 
-                  <div className={`${fieldClass} text-[#f5eee7]`}>
+                  <div className={`${fieldClass} break-words text-[#f5eee7]`}>
                     {user.name}
                   </div>
                 </div>
@@ -143,7 +152,7 @@ export default function WalletPage() {
                     Nome do perfil
                   </p>
 
-                  <div className={`${fieldClass} text-[#f5eee7]`}>
+                  <div className={`${fieldClass} break-words text-[#f5eee7]`}>
                     {user.name}
                   </div>
                 </div>
@@ -191,24 +200,24 @@ export default function WalletPage() {
             </section>
 
             {/* Carteira secundária */}
-            <section className="mt-10 border-t border-[#493025] pt-8">
+            <section className="mt-8 border-t border-[#493025] pt-7 md:mt-10 md:pt-8">
               <h2 className="font-mono text-base font-bold">
                 Carteira secundária
               </h2>
 
-              <p className="mt-3 text-sm leading-7 text-[#b99674]">
+              <p className="mt-3 text-xs leading-6 text-[#b99674] md:text-sm md:leading-7">
                 Você ainda não adicionou uma carteira secundária.
                 O cadastro de carteiras não está disponível
                 nesta demonstração.
               </p>
             </section>
 
-            {/* Status e seleção */}
-            <section className="mt-10 border-t border-[#493025] pt-8">
+            {/* Minha seleção */}
+            <section className="mt-8 border-t border-[#493025] pt-7 md:mt-10 md:pt-8">
               <div className="flex items-center gap-3">
                 <Wallet
                   size={21}
-                  className="text-[#d9914d]"
+                  className="shrink-0 text-[#d9914d]"
                 />
 
                 <h2 className="font-mono text-base font-bold">
@@ -216,12 +225,12 @@ export default function WalletPage() {
                 </h2>
               </div>
 
-              <p className="mt-3 text-sm leading-7 text-[#b99674]">
+              <p className="mt-3 text-xs leading-6 text-[#b99674] md:text-sm md:leading-7">
                 NFTs adicionados ao seu carrinho no marketplace.
               </p>
 
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-5 border border-[#493025] bg-[#241713] p-5 sm:p-6">
-                <div>
+              <div className="mt-5 flex flex-col gap-5 rounded-2xl border border-[#493025] bg-[#241713] p-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:p-6 md:mt-6 md:rounded-none">
+                <div className="min-w-0">
                   <p className="font-mono text-xs text-[#b99674]">
                     Itens no carrinho
                   </p>
@@ -241,7 +250,7 @@ export default function WalletPage() {
 
                 <Link
                   to="/cart"
-                  className="inline-flex items-center gap-2 rounded-md bg-[#d9914d] px-5 py-3.5 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 self-start rounded-full bg-[#d9914d] px-6 py-3.5 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67] sm:self-auto md:rounded-md"
                 >
                   Ver meu carrinho
                   <ArrowRight size={16} />
@@ -249,8 +258,8 @@ export default function WalletPage() {
               </div>
             </section>
 
-            {/* Aviso */}
-            <div className="mt-9 flex items-start gap-3 border-l-2 border-[#d9914d] bg-[#241713] px-5 py-4">
+            {/* Aviso sobre a demonstração */}
+            <div className="mt-8 flex items-start gap-3 rounded-xl border border-[#493025] bg-[#241713] px-4 py-4 md:mt-9 md:rounded-none md:border-0 md:border-l-2 md:border-l-[#d9914d] md:px-5">
               <ShieldCheck
                 size={20}
                 className="mt-0.5 shrink-0 text-[#d9914d]"

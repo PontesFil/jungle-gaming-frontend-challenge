@@ -5,23 +5,46 @@ import {
   createRouter,
   lazyRouteComponent,
   Outlet,
+  useRouterState,
 } from '@tanstack/react-router'
 
 import Header from './components/layout/Header'
-import { useRealtimePrices } from './hooks/useRealtimePrices'
 import Footer from './components/layout/Footer'
+import { useRealtimePrices } from './hooks/useRealtimePrices'
+
 
 function RootLayout() {
   useRealtimePrices()
 
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
+
+  const isFocusedPage =
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname === '/checkout'
+
   return (
     <div className="flex min-h-screen flex-col bg-[#140e0c]">
-      <Header />
-<div className="flex-1">
-  <Outlet />
-</div>
-<Footer />
-<div aria-hidden="true" className="h-20 md:hidden" />
+      <div className={isFocusedPage ? 'hidden md:block' : ''}>
+        <Header />
+      </div>
+
+      <div className="flex-1">
+        <Outlet />
+      </div>
+
+      <div className={isFocusedPage ? 'hidden md:block' : ''}>
+        <Footer />
+      </div>
+
+      <div
+        aria-hidden="true"
+        className={
+          isFocusedPage ? 'hidden' : 'h-20 md:hidden'
+        }
+      />
     </div>
   )
 }
@@ -33,7 +56,9 @@ const rootRoute = createRootRoute({
 const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: lazyRouteComponent(() => import('./pages/Homepage')),
+  component: lazyRouteComponent(
+    () => import('./pages/Homepage'),
+  ),
 })
 
 const nftDetailsRoute = createRoute({
@@ -47,7 +72,9 @@ const nftDetailsRoute = createRoute({
 const cartRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/cart',
-  component: lazyRouteComponent(() => import('./pages/CartPage')),
+  component: lazyRouteComponent(
+    () => import('./pages/CartPage'),
+  ),
 })
 
 const checkoutRoute = createRoute({
@@ -75,7 +102,9 @@ const confirmationRoute = createRoute({
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
-  component: lazyRouteComponent(() => import('./pages/LoginPage')),
+  component: lazyRouteComponent(
+    () => import('./pages/LoginPage'),
+  ),
 })
 
 const registerRoute = createRoute({
