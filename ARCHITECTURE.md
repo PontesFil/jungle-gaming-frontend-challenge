@@ -39,7 +39,9 @@ tests/
 ├── auth.spec.ts
 ├── catalog.spec.ts
 ├── checkout.spec.ts
-└── idempotency.spec.ts
+├── checkout-recovery.spec.ts
+├── idempotency.spec.ts
+└── isolation.spec.ts
 ```
 
 ## Navegação
@@ -72,14 +74,27 @@ A confirmação de compra consulta a API antes de apresentar o estado de sucesso
 
 Os pedidos são armazenados localmente no navegador. Esse mecanismo não representa um backend persistente de produção.
 
+### Cenários determinísticos de falha
+
+O MSW permite simular a indisponibilidade temporária do checkout por meio da chave `kurio-mock-scenario` no `localStorage`.
+
+Quando configurada com o valor `checkout-error`, a rota `POST /api/checkout` retorna HTTP 503 após a verificação da sessão simulada, sem persistir um novo pedido.
+
+A interface apresenta uma mensagem de erro e preserva os itens do carrinho, permitindo uma nova tentativa. Ao remover a chave, o endpoint retorna ao comportamento normal.
+
+Esse mecanismo permite reproduzir cenários de falha e recuperação de maneira controlada, sem depender de instabilidades externas ou modificar o código-fonte durante os testes.
+
 ## Estado e cache
 
 O TanStack Query gerencia os dados assíncronos do catálogo e a consulta de pedidos.
 
 O `CartContext` gerencia os itens do carrinho, enquanto o `AuthContext` mantém a sessão simulada.
 
-O `AuthContext` mantém uma sessão demonstrativa no localStorage', utilizando a chave kurio-user. O cadastro e o login consultam endpoints simulados pelo MSW. O CartContext persiste o carrinho por conta simulada, enquanto os pedidos são armazenados localmente e consultados por meio da API mockada.
-A separação dos dados depende de informações controladas pelo próprio navegador. Não há tokens de autenticação, sessão validada no servidor ou isolamento de segurança entre usuários. Esses mecanismos servem exclusivamente à demonstração.
+O `AuthContext` mantém uma sessão demonstrativa no `localStorage`, utilizando a chave `kurio-user`. O cadastro e o login consultam endpoints simulados pelo MSW.
+
+O `CartContext` persiste os itens por conta simulada, enquanto os pedidos são armazenados localmente e consultados por meio da API mockada.
+
+A consulta de pedidos verifica a correspondência entre o e-mail da sessão simulada e o proprietário registrado no pedido. Essa separação é funcional no ambiente de demonstração, mas não constitui isolamento seguro entre usuários, pois os dados e a sessão são controlados pelo navegador.
 
 ## Comunicação em tempo real
 
@@ -117,20 +132,26 @@ O checkout ainda não realiza uma revalidação transacional de preço e disponi
 
 ## Testes
 
-O projeto utiliza Playwright para testes E2E.
+O projeto utiliza Playwright para testes E2E executados em Chromium.
 
-A suíte contém oito testes automatizados que verificam:
+A suíte contém dez testes automatizados, abrangendo:
 
-- Exibição do catálogo.
+- Exibição do catálogo de NFTs.
 - Navegação para os detalhes de um NFT.
-- Exigência de login antes da compra.
+- Exigência de autenticação antes da compra.
 - Finalização do checkout após autenticação.
 - Cadastro de usuário e persistência da sessão simulada.
 - Rejeição de login com senha incorreta.
 - Rejeição de cadastro com e-mail duplicado.
 - Idempotência do checkout, incluindo reutilização válida da chave e rejeição de alterações nos itens ou preços.
+- Isolamento funcional de pedidos entre contas e visitantes sem sessão.
+- Falha controlada HTTP 503, preservação do carrinho e recuperação do checkout após nova tentativa.
 
-Comandos disponíveis:
+O teste de isolamento realiza cadastro e compra pela interface antes de verificar a consulta do mesmo pedido em outra sessão simulada.
+
+O teste de recuperação ativa o cenário `checkout-error`, verifica o feedback apresentado ao usuário e confirma que a compra pode ser concluída após desativar a falha.
+
+### Comandos de validação
 
 ```bash
 npm run typecheck
@@ -142,7 +163,7 @@ npm run lighthouse
 
 O Lighthouse CI audita a compilação local e salva relatórios em `lighthouse-reports/`.
 
-A cobertura não contempla todos os cenários de falha, regressão visual ou reconexão avançada do Socket.IO.
+A cobertura automatizada ainda não contempla regressão visual, todos os cenários de falha ou reconexão avançada do Socket.IO. O isolamento testado é funcional e demonstrativo, não uma garantia de segurança de autenticação em produção.
 
 
 ## Deploy

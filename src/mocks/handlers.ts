@@ -21,6 +21,15 @@ interface StoredOrder {
 
 const STORAGE_KEY = 'kurio-orders'
 
+const MOCK_SCENARIO_KEY = 'kurio-mock-scenario'
+
+function getMockScenario(): string | null {
+  try {
+    return localStorage.getItem(MOCK_SCENARIO_KEY)
+  } catch {
+    return null
+  }
+}
 
 interface MockAccount {
   name: string
@@ -205,6 +214,15 @@ export const handlers = [
         { status: 401 },
       )
     }
+
+    if (getMockScenario() === 'checkout-error') {
+  return HttpResponse.json(
+    {
+      message: 'Serviço de pagamento temporariamente indisponível.',
+    },
+    { status: 503 },
+  )
+}
 
     let body: CheckoutRequest
 

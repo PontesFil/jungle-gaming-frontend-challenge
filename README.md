@@ -1,6 +1,7 @@
 # Kurio — NFT Marketplace
 
-Aplicação frontend de marketplace de NFTs desenvolvida para o desafio técnico da **Jungle Gaming**.
+Aplicação frontend de marketplace de NFTs desenvolvida
+para o desafio técnico da **Jungle Gaming**.
 
 O projeto demonstra uma jornada de navegação e compra simulada de NFTs, com catálogo, detalhes dos itens, carrinho, checkout e confirmação de pedidos. Utiliza API REST mockada com MSW, comunicação em tempo real via Socket.IO e testes automatizados com Playwright.
 
@@ -35,6 +36,7 @@ O projeto demonstra uma jornada de navegação e compra simulada de NFTs, com ca
 - Login e cadastro simulados.
 - Checkout com dados do colecionador, seleção simulada de carteira e rede e revisão do pedido.
 - Validação de itens e estrutura dos preços enviados ao checkout mockado.
+- Cenário determinístico de indisponibilidade do checkout via MSW (HTTP 503), com preservação do carrinho e possibilidade de nova tentativa.
 - Criação de pedidos via API mockada, com chave de idempotência.
 - Reutilização da chave de idempotência com os mesmos NFTs e preços retorna o pedido original; alterações nos itens ou preços com a mesma chave retornam HTTP 409.
 - Consulta do pedido pela API antes da exibição da confirmação.
@@ -106,8 +108,42 @@ npm run lighthouse
 npm run preview
 ```
 
-A suíte atual contém oito testes E2E, cobrindo catálogo, detalhes, autenticação simulada, checkout e idempotência. Os oito testes foram executados com sucesso em 17/10/2026.
+A suíte contém dez testes E2E com Playwright, cobrindo catálogo, detalhes dos NFTs, autenticação simulada, checkout, idempotência, isolamento de pedidos entre contas e recuperação após indisponibilidade simulada do checkout (HTTP 503).
 
+Os testes de isolamento verificam que um pedido confirmado para uma conta não é exibido para outra conta ou para um visitante sem sessão. O teste de recuperação verifica que uma falha simulada não conclui a compra, preserva o carrinho e permite uma nova tentativa após a restauração do serviço.
+
+## Cenários determinísticos do MSW
+
+A API simulada utiliza o Mock Service Worker (MSW) para reproduzir respostas HTTP controladas e permitir a validação de cenários de sucesso, falha e recuperação.
+
+### Simular indisponibilidade do checkout
+
+Com a aplicação aberta, acesse o Console das ferramentas de desenvolvedor do navegador e execute:
+
+```js
+localStorage.setItem('kurio-mock-scenario', 'checkout-error')
+```
+
+Ao tentar finalizar uma compra, a API mockada retornará **HTTP 503 (Service Unavailable)**.
+
+Nesse cenário:
+
+- O pedido não é confirmado.
+- A interface apresenta uma mensagem de erro.
+- Os itens permanecem no carrinho.
+- O usuário pode realizar uma nova tentativa.
+
+### Restaurar o checkout
+
+Para desativar a falha simulada, execute:
+
+```js
+localStorage.removeItem('kurio-mock-scenario')
+```
+
+Em seguida, tente confirmar o pedido novamente. A API voltará a executar o fluxo normal, permitindo a conclusão da compra.
+
+O cenário é determinístico e configurado por origem do navegador, sem necessidade de modificar o código-fonte. Não representa uma indisponibilidade real de um serviço de pagamento.
 
 ## Reset dos dados simulados
 
