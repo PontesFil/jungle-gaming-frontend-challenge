@@ -9,15 +9,21 @@ import {
 
 import Header from './components/layout/Header'
 import { useRealtimePrices } from './hooks/useRealtimePrices'
+import Footer from './components/layout/Footer'
 
 function RootLayout() {
   useRealtimePrices()
 
   return (
-    <>
+    <div className="flex min-h-screen flex-col bg-[#140e0c]">
       <Header />
-      <Outlet />
-    </>
+
+      <div className="flex-1">
+        <Outlet />
+      </div>
+
+      <Footer />
+    </div>
   )
 }
 

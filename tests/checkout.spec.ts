@@ -28,9 +28,11 @@ test('deve exigir login antes de finalizar a compra', async ({ page }) => {
   await expect(page).toHaveURL(/\/cart$/)
 
   await expect(
-    page.getByText('Emerald Ape'),
-  ).toBeVisible()
-
+  page.getByRole('heading', {
+    name: 'Emerald Ape',
+    exact: true,
+  }),
+).toBeVisible()
   await page.getByRole('button', {
     name: /ir para pagamento/i,
   }).click()

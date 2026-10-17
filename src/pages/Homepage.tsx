@@ -7,6 +7,7 @@ import { SlidersHorizontal } from 'lucide-react'
 import { getNfts } from '../services/nftService'
 import Hero from '../components/home/Hero'
 import NftFilters from '../components/home/NftFilters'
+import HomeExtras from '../components/home/HomeExtras'
 
 export default function HomePage() {
   const [search, setSearch] = useState('')
@@ -190,8 +191,11 @@ export default function HomePage() {
                 </>
               )}
             </div>
-          </div>
+            
+                    </div>
         </section>
+
+        <HomeExtras />
       </div>
     </main>
   )

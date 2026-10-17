@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from '@tanstack/react-router'
 import { getNfts } from '../services/nftService'
@@ -5,7 +6,6 @@ import { useCart } from '../contexts/CartContext'
 
 export default function NftDetailsPage() {
   const { nftId } = useParams({ from: '/nft/$nftId' })
-
   const { addItem, items } = useCart()
 
   const {
@@ -19,16 +19,20 @@ export default function NftDetailsPage() {
 
   if (isPending) {
     return (
-      <main className="min-h-screen bg-[#140e0c] p-8 text-white">
-        <p>Carregando NFT...</p>
+      <main className="bg-[#140e0c] px-4 py-16 text-[#c6a17b]">
+        <div className="mx-auto max-w-7xl">
+          <p>Carregando NFT...</p>
+        </div>
       </main>
     )
   }
 
   if (isError || !nfts) {
     return (
-      <main className="min-h-screen bg-[#140e0c] p-8 text-red-400">
-        <p>Erro ao carregar NFT.</p>
+      <main className="bg-[#140e0c] px-4 py-16 text-red-400">
+        <div className="mx-auto max-w-7xl">
+          <p role="alert">Erro ao carregar NFT.</p>
+        </div>
       </main>
     )
   }
@@ -37,11 +41,19 @@ export default function NftDetailsPage() {
 
   if (!nft) {
     return (
-      <main className="min-h-screen bg-[#140e0c] p-8 text-white">
-        <p>NFT não encontrado.</p>
-        <Link to="/" className="mt-4 inline-block text-orange-400">
-          ← Voltar ao catálogo
-        </Link>
+      <main className="bg-[#140e0c] px-4 py-16 text-white">
+        <div className="mx-auto max-w-7xl">
+          <h1 className="font-mono text-2xl font-bold">
+            NFT não encontrado
+          </h1>
+
+          <Link
+            to="/"
+            className="mt-5 inline-block text-[#e9a15c] hover:underline"
+          >
+            ← Voltar ao catálogo
+          </Link>
+        </div>
       </main>
     )
   }
@@ -50,200 +62,311 @@ export default function NftDetailsPage() {
 
   const relatedNfts = nfts
     .filter((item) => item.id !== nft.id)
-    .slice(0, 3)
+    .slice(0, 5)
 
   return (
-    <main className="min-h-screen bg-[#140e0c] text-white">
+    <main className="bg-[#140e0c] pb-20 text-[#f5eee7]">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Navegação */}
-        <nav className="mb-8 text-sm text-white/50">
-          <Link to="/" className="transition hover:text-orange-400">
+        {/* Breadcrumb */}
+        <nav
+          aria-label="Navegação estrutural"
+          className="mb-9 flex items-center gap-3 font-mono text-xs"
+        >
+          <Link
+            to="/"
+            className="text-[#c6a17b] transition hover:text-[#e9a15c]"
+          >
+            Início
+          </Link>
+
+          <span className="text-[#70503e]">/</span>
+
+          <Link
+            to="/"
+            hash="explorar"
+            className="text-[#c6a17b] transition hover:text-[#e9a15c]"
+          >
             Mercado
           </Link>
 
-          <span className="mx-3">/</span>
+          <span className="text-[#70503e]">/</span>
 
-          <span className="text-orange-400">{nft.name}</span>
+          <span className="truncate text-[#e9a15c]">
+            {nft.name}
+          </span>
         </nav>
 
-        {/* Conteúdo principal */}
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-12">
-          {/* Imagem */}
-          <div>
-            <div className="overflow-hidden rounded-2xl border border-[#493025] bg-[#291c17] p-3 sm:p-5">
-              <div className="aspect-square overflow-hidden rounded-xl bg-[#35251e]">
-                <img
-                  src={nft.imageUrl}
-                  alt={`Arte do NFT ${nft.name}`}
-                  className="h-full w-full object-cover"
-                />
+        {/* Galeria + informações */}
+        <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
+          {/* Galeria */}
+          <section
+            aria-label={`Galeria de ${nft.name}`}
+            className="min-w-0"
+          >
+            <div className="grid grid-cols-[64px_minmax(0,1fr)] items-start gap-3 sm:grid-cols-[82px_minmax(0,1fr)] sm:gap-5">
+              {/* Miniatura da obra */}
+              <div className="space-y-3">
+                <div className="overflow-hidden rounded-lg border-2 border-[#d9914d] bg-[#2b1b15] p-1">
+                  <img
+                    src={nft.imageUrl}
+                    alt={`Miniatura de ${nft.name}`}
+                    className="aspect-square w-full object-cover"
+                  />
+                </div>
+
+                <div className="rounded-md border border-[#493025] bg-[#241713] px-2 py-3 text-center">
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-wide text-[#d9914d]">
+                    Arte
+                  </p>
+
+                  <p className="mt-1 text-[10px] text-[#b99674]">
+                    Digital
+                  </p>
+                </div>
+              </div>
+
+              {/* Imagem principal */}
+              <div className="overflow-hidden rounded-lg bg-[#281914] p-3 sm:p-4">
+                <div className="aspect-square overflow-hidden rounded-lg bg-[#35251e]">
+                  <img
+                    src={nft.imageUrl}
+                    alt={`Arte do NFT ${nft.name}`}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="mt-4 flex items-center gap-3 rounded-xl border border-[#493025] bg-[#211713] p-4">
-              <div className="h-12 w-12 overflow-hidden rounded-lg bg-[#35251e]">
+            <div className="mt-5 flex items-center gap-3 border-t border-[#493025] pt-5">
+              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-[#35251e]">
                 <img
                   src={nft.imageUrl}
                   alt=""
+                  loading="lazy"
                   className="h-full w-full object-cover"
                 />
               </div>
 
               <div>
-                <p className="text-xs text-white/50">Coleção</p>
-                <p className="font-semibold text-white">
+                <p className="font-mono text-[11px] text-[#a98a70]">
+                  Coleção
+                </p>
+
+                <p className="mt-1 font-mono text-xs font-bold">
                   Kurio Collection
                 </p>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Informações */}
-          <section className="flex flex-col">
-            <div className="mb-4">
-              <span className="inline-flex rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-400">
-                {nft.category}
-              </span>
-            </div>
+          {/* Informações e compra */}
+          <section className="min-w-0">
+            <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#d9914d]">
+              {nft.category}
+            </p>
 
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
+            <h1 className="mt-3 font-mono text-3xl font-extrabold tracking-tight sm:text-4xl">
               {nft.name}
             </h1>
 
-            <p className="mt-4 text-sm text-white/60">
+            <p className="mt-3 font-mono text-xs text-[#b99674]">
               Criado por{' '}
-              <span className="font-semibold text-orange-400">
+              <span className="font-semibold text-[#e9a15c]">
                 {nft.creator}
               </span>
             </p>
 
-            <div className="mt-8 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-[#493025] bg-[#211713] p-4">
-                <p className="text-xs text-white/50">Categoria</p>
-                <p className="mt-2 text-sm font-semibold">
+            {/* Preço */}
+            <div className="mt-7 border-b border-[#493025] pb-6">
+              <p className="font-mono text-xs text-[#a98a70]">
+                Preço atual
+              </p>
+
+              <p className="mt-2 font-mono text-3xl font-extrabold text-[#e9a15c]">
+                {nft.price.toFixed(2)}{' '}
+                <span className="text-lg">{nft.currency}</span>
+              </p>
+            </div>
+
+            {/* Sobre a obra */}
+            <div className="mt-6">
+              <h2 className="font-mono text-sm font-bold">
+                Sobre este NFT
+              </h2>
+
+              <p className="mt-3 text-sm leading-7 text-[#b99674]">
+                Conheça {nft.name}, uma obra da coleção Kurio
+                criada por {nft.creator}. Explore sua identidade
+                visual e adicione este colecionável digital à
+                sua seleção.
+              </p>
+            </div>
+
+            {/* Metadados resumidos */}
+            <div className="mt-7 grid grid-cols-2 gap-5 border-y border-[#493025] py-5">
+              <div>
+                <p className="font-mono text-[11px] text-[#a98a70]">
+                  Categoria
+                </p>
+
+                <p className="mt-2 font-mono text-xs font-bold">
                   {nft.category}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-[#493025] bg-[#211713] p-4">
-                <p className="text-xs text-white/50">Moeda</p>
-                <p className="mt-2 text-sm font-semibold">
+              <div>
+                <p className="font-mono text-[11px] text-[#a98a70]">
+                  Moeda
+                </p>
+
+                <p className="mt-2 font-mono text-xs font-bold">
                   {nft.currency}
                 </p>
               </div>
             </div>
 
-            {/* Painel de compra */}
-            <div className="mt-8 rounded-2xl border border-[#67412c] bg-[#281b15] p-5 sm:p-6">
-              <p className="text-sm text-white/60">
-                Preço atual
+            {/* Ações de compra */}
+            <div className="mt-7">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => addItem(nft)}
+                  disabled={isInCart}
+                  className="inline-flex min-h-12 flex-1 cursor-pointer items-center justify-center rounded-md bg-[#d9914d] px-6 py-3 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isInCart
+                    ? '✓ Adicionado ao carrinho'
+                    : 'Adicionar ao carrinho'}
+                </button>
+
+                <Link
+                  to="/cart"
+                  className="inline-flex min-h-12 items-center justify-center rounded-md border border-[#d9914d] px-6 py-3 font-mono text-xs font-bold text-[#e9a15c] transition hover:bg-[#d9914d]/10"
+                >
+                  Ver carrinho →
+                </Link>
+              </div>
+
+              <p className="mt-4 text-xs leading-relaxed text-[#96755f]">
+                Compra demonstrativa. Nenhuma transação
+                financeira ou blockchain real será realizada.
               </p>
-
-              <p className="mt-2 text-4xl font-extrabold text-orange-400">
-                {nft.price.toFixed(2)}{' '}
-                <span className="text-xl">{nft.currency}</span>
-              </p>
-
-              <p className="mt-2 text-xs text-white/40">
-                Compra demonstrativa — nenhuma transação real será realizada.
-              </p>
-
-              <button
-                type="button"
-                onClick={() => addItem(nft)}
-                disabled={isInCart}
-                className="mt-6 w-full rounded-xl bg-orange-500 px-6 py-4 text-sm font-bold text-[#1b100b] transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isInCart
-                  ? '✓ Adicionado ao carrinho'
-                  : 'Adicionar ao carrinho'}
-              </button>
-
-              <Link
-                to="/cart"
-                className="mt-3 flex w-full items-center justify-center rounded-xl border border-orange-500/40 px-6 py-3 text-sm font-semibold text-orange-400 transition hover:bg-orange-500/10"
-              >
-                Ver carrinho →
-              </Link>
-            </div>
-
-            <div className="mt-6 rounded-xl border border-[#493025] bg-[#211713] p-5">
-              <h2 className="font-bold">Detalhes do ativo</h2>
-
-              <dl className="mt-4 space-y-4 text-sm">
-                <div className="flex items-center justify-between gap-4">
-                  <dt className="text-white/50">Identificador</dt>
-                  <dd className="font-medium">#{nft.id}</dd>
-                </div>
-
-                <div className="h-px bg-white/10" />
-
-                <div className="flex items-center justify-between gap-4">
-                  <dt className="text-white/50">Criador</dt>
-                  <dd className="font-medium">{nft.creator}</dd>
-                </div>
-
-                <div className="h-px bg-white/10" />
-
-                <div className="flex items-center justify-between gap-4">
-                  <dt className="text-white/50">Moeda</dt>
-                  <dd className="font-medium">{nft.currency}</dd>
-                </div>
-              </dl>
             </div>
           </section>
         </div>
 
+        {/* Detalhes do NFT */}
+        <section className="mt-16 border-t border-[#493025] pt-8 sm:mt-20">
+          <h2 className="inline-block border-b-2 border-[#d9914d] pb-3 font-mono text-sm font-bold text-[#e9a15c]">
+            Detalhes do NFT
+          </h2>
+
+          <div className="mt-6 grid gap-8 md:grid-cols-[minmax(0,1.4fr)_minmax(220px,0.6fr)]">
+            <div>
+              <p className="max-w-3xl text-sm leading-7 text-[#b99674]">
+                {nft.name} faz parte da seleção de arte digital
+                do Kurio. Este item é apresentado em um
+                marketplace demonstrativo, criado para
+                explorar experiências de descoberta,
+                coleção e compra de NFTs.
+              </p>
+
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-[#b99674]">
+                Os dados de preço e disponibilidade são
+                simulados. A experiência não representa
+                a transferência de um ativo real.
+              </p>
+            </div>
+
+            <dl className="space-y-4 border-l border-[#493025] pl-5 font-mono text-xs">
+              <div>
+                <dt className="text-[#a98a70]">
+                  Identificador
+                </dt>
+
+                <dd className="mt-1 font-bold text-[#f5eee7]">
+                  #{nft.id}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-[#a98a70]">
+                  Criador
+                </dt>
+
+                <dd className="mt-1 font-bold text-[#f5eee7]">
+                  {nft.creator}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-[#a98a70]">
+                  Categoria
+                </dt>
+
+                <dd className="mt-1 font-bold text-[#f5eee7]">
+                  {nft.category}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+
         {/* NFTs relacionados */}
         {relatedNfts.length > 0 && (
-          <section className="mt-16 border-t border-white/10 pt-10">
-            <div className="mb-6 flex items-center justify-between gap-4">
+          <section className="mt-20">
+            <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#493025] pb-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-orange-400">
-                  Descubra mais
+                <p className="font-mono text-xs font-semibold uppercase tracking-wider text-[#d9914d]">
+                  Continue explorando
                 </p>
 
-                <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
-                  Você também pode gostar
+                <h2 className="mt-2 font-mono text-xl font-bold text-[#f5eee7] sm:text-2xl">
+                  Mais da coleção
                 </h2>
               </div>
 
               <Link
                 to="/"
-                className="shrink-0 text-sm font-semibold text-orange-400 hover:underline"
+                hash="explorar"
+                className="font-mono text-xs font-bold text-[#e9a15c] transition hover:underline"
               >
                 Ver todos →
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-5 lg:grid-cols-5">
               {relatedNfts.map((item) => (
                 <Link
                   key={item.id}
                   to="/nft/$nftId"
                   params={{ nftId: item.id }}
-                  className="group overflow-hidden rounded-xl border border-[#493025] bg-[#241914] transition hover:border-orange-500/60"
+                  className="group block min-w-0"
                 >
-                  <div className="aspect-square overflow-hidden bg-[#35251e]">
-                    <img
-                      src={item.imageUrl}
-                      alt={`Arte do NFT ${item.name}`}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                    />
-                  </div>
+                  <article>
+                    <div className="aspect-square overflow-hidden rounded-lg bg-[#281914]">
+                      <img
+                        src={item.imageUrl}
+                        alt={`Arte do NFT ${item.name}`}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
+                      />
+                    </div>
 
-                  <div className="p-3 sm:p-4">
-                    <h3 className="truncate font-bold">{item.name}</h3>
+                    <div className="pt-3">
+                      <h3 className="truncate font-mono text-xs font-semibold text-[#f5eee7] transition group-hover:text-[#e9a15c]">
+                        {item.name}
+                      </h3>
 
-                    <p className="mt-1 truncate text-xs text-white/50">
-                      {item.creator}
-                    </p>
+                      <p className="mt-1 truncate text-[11px] text-[#a98a70]">
+                        {item.creator}
+                      </p>
 
-                    <p className="mt-3 text-sm font-bold text-orange-400">
-                      {item.price.toFixed(2)} {item.currency}
-                    </p>
-                  </div>
+                      <p className="mt-2 font-mono text-sm font-extrabold text-[#e9a15c]">
+                        {item.price.toFixed(2)} {item.currency}
+                      </p>
+                    </div>
+                  </article>
                 </Link>
               ))}
             </div>
