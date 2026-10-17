@@ -1,9 +1,11 @@
+
 import {
   createContext,
   useContext,
   useState,
   type ReactNode,
 } from 'react'
+import axios from 'axios'
 
 interface User {
   name: string
@@ -12,8 +14,12 @@ interface User {
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => boolean
-  register: (name: string, email: string, password: string) => boolean
+  login: (email: string, password: string) => Promise<boolean>
+  register: (
+    name: string,
+    email: string,
+    password: string
+  ) => Promise<boolean>
   logout: () => void
 }
 
@@ -29,29 +35,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   })
 
-  function login(email: string, password: string) {
-    if (!email.trim() || !password.trim()) return false
+  async function login(email: string, password: string): Promise<boolean> {
+    try {
+      const response = await axios.post<{ user: User }>(
+        '/api/auth/login',
+        { email, password }
+      )
 
-    const authenticatedUser = {
-      name: email.split('@')[0],
-      email,
+      const authenticatedUser = response.data.user
+
+      setUser(authenticatedUser)
+      localStorage.setItem(
+        'kurio-user',
+        JSON.stringify(authenticatedUser)
+      )
+
+      return true
+    } catch {
+      return false
     }
-
-    setUser(authenticatedUser)
-    localStorage.setItem('kurio-user', JSON.stringify(authenticatedUser))
-
-    return true
   }
 
-  function register(name: string, email: string, password: string) {
-    if (!name.trim() || !email.trim() || !password.trim()) return false
+  async function register(
+    name: string,
+    email: string,
+    password: string
+  ): Promise<boolean> {
+    try {
+      const response = await axios.post<{ user: User }>(
+        '/api/auth/register',
+        { name, email, password }
+      )
 
-    const newUser = { name, email }
+      const newUser = response.data.user
 
-    setUser(newUser)
-    localStorage.setItem('kurio-user', JSON.stringify(newUser))
+      setUser(newUser)
+      localStorage.setItem(
+        'kurio-user',
+        JSON.stringify(newUser)
+      )
 
-    return true
+      return true
+    } catch {
+      return false
+    }
   }
 
   function logout() {

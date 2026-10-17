@@ -19,33 +19,46 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError('')
+  
+async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault()
 
-    if (password.length < 6) {
-      setError('A senha precisa ter pelo menos 6 caracteres.')
-      return
-    }
+  if (isLoading) return
 
-    if (password !== confirmPassword) {
-      setError('As senhas não coincidem.')
-      return
-    }
+  setError('')
 
-    const success = register(name, email, password)
-
-    if (!success) {
-      setError('Preencha todos os campos.')
-      return
-    }
-
-    navigate({ to: '/' })
+  if (password.length < 6) {
+    setError('A senha precisa ter pelo menos 6 caracteres.')
+    return
   }
 
-  return (
-    <AuthLayout mode="register">
+  if (password !== confirmPassword) {
+    setError('As senhas não coincidem.')
+    return
+  }
+
+  setIsLoading(true)
+
+  try {
+    const success = await register(name, email, password)
+
+    if (!success) {
+      setError('Não foi possível criar a conta. Verifique os dados ou tente outro e-mail.')
+      return
+    }
+
+        await navigate({ to: '/' })
+  } catch {
+    setError('Ocorreu um erro inesperado. Tente novamente.')
+  } finally {
+    setIsLoading(false)
+  }
+}
+
+return (
+  <AuthLayout mode="register">
       <form
         onSubmit={handleSubmit}
         className="mt-7 space-y-3"
@@ -145,12 +158,15 @@ export default function RegisterPage() {
           </p>
         )}
 
-        <button
-          type="submit"
-          className="mt-5 w-full cursor-pointer rounded-sm bg-[#d9914d] px-5 py-3.5 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67]"
-        >
-          Criar conta
-        </button>
+        
+<button
+  type="submit"
+  disabled={isLoading}
+  className="mt-5 w-full cursor-pointer rounded-sm bg-[#d9914d] px-5 py-3.5 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67] disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {isLoading ? 'Criando conta...' : 'Criar conta'}
+</button>
+
       </form>
     </AuthLayout>
   )

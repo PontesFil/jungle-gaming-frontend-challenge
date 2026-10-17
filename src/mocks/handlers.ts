@@ -20,6 +20,44 @@ interface StoredOrder {
 
 const STORAGE_KEY = 'kurio-orders'
 
+
+interface MockAccount {
+  name: string
+  email: string
+  passwordHash: string
+}
+
+interface AuthRequest {
+  email: string
+  password: string
+  name?: string
+}
+
+const ACCOUNTS_KEY = 'kurio-mock-accounts'
+
+function getAccounts(): MockAccount[] {
+  try {
+    const raw = localStorage.getItem(ACCOUNTS_KEY)
+    return raw ? (JSON.parse(raw) as MockAccount[]) : []
+  } catch {
+    return []
+  }
+}
+
+function saveAccounts(accounts: MockAccount[]) {
+  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts))
+}
+
+async function hashPassword(password: string): Promise<string> {
+  const bytes = new TextEncoder().encode(password)
+  const digest = await crypto.subtle.digest('SHA-256', bytes)
+
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+
 function getCurrentEmail(): string | null {
   try {
     const raw = localStorage.getItem('kurio-user')
@@ -45,6 +83,115 @@ export const handlers = [
   http.get('/api/nfts', () => {
     return HttpResponse.json(mockNfts)
   }),
+
+  
+  http.post('/api/auth/register', async ({ request }) => {
+    await delay(300)
+
+    let body: AuthRequest
+
+    try {
+      body = (await request.json()) as AuthRequest
+    } catch {
+      return HttpResponse.json(
+        { message: 'Dados inválidos.' },
+        { status: 400 },
+      )
+    }
+
+    const name = typeof body?.name === 'string'
+      ? body.name.trim()
+      : ''
+
+    const email = typeof body?.email === 'string'
+      ? body.email.trim().toLowerCase()
+      : ''
+
+    const password = body?.password
+
+    if (
+      !name ||
+      !email.includes('@') ||
+      typeof password !== 'string' ||
+      password.length < 6
+    ) {
+      return HttpResponse.json(
+        { message: 'Nome, e-mail ou senha inválidos.' },
+        { status: 400 },
+      )
+    }
+
+    const accounts = getAccounts()
+
+    if (accounts.some((account) => account.email === email)) {
+      return HttpResponse.json(
+        { message: 'Este e-mail já está cadastrado.' },
+        { status: 409 },
+      )
+    }
+
+    const passwordHash = await hashPassword(password)
+
+    saveAccounts([
+      ...accounts,
+      { name, email, passwordHash },
+    ])
+
+    return HttpResponse.json(
+      { user: { name, email } },
+      { status: 201 },
+    )
+  }),
+
+  http.post('/api/auth/login', async ({ request }) => {
+    await delay(300)
+
+    let body: AuthRequest
+
+    try {
+      body = (await request.json()) as AuthRequest
+    } catch {
+      return HttpResponse.json(
+        { message: 'Dados inválidos.' },
+        { status: 400 },
+      )
+    }
+
+    const email = typeof body?.email === 'string'
+      ? body.email.trim().toLowerCase()
+      : ''
+
+    const password = body?.password
+
+    if (!email || typeof password !== 'string' || !password) {
+      return HttpResponse.json(
+        { message: 'Informe e-mail e senha.' },
+        { status: 400 },
+      )
+    }
+
+    const account = getAccounts().find(
+      (item) => item.email === email,
+    )
+
+    if (
+      !account ||
+      account.passwordHash !== await hashPassword(password)
+    ) {
+      return HttpResponse.json(
+        { message: 'E-mail ou senha inválidos.' },
+        { status: 401 },
+      )
+    }
+
+    return HttpResponse.json({
+      user: {
+        name: account.name,
+        email: account.email,
+      },
+    })
+  }),
+
 
   http.post('/api/checkout', async ({ request }) => {
     await delay(700)

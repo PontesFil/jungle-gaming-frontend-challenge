@@ -17,20 +17,29 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError('')
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault()
 
-    const success = login(email, password)
+  if (isLoading) return
+
+  setError('')
+  setIsLoading(true)
+
+  try {
+    const success = await login(email, password)
 
     if (!success) {
-      setError('Preencha seu e-mail e senha.')
+      setError('E-mail ou senha inválidos. Tente novamente.')
       return
     }
 
-    navigate({ to: '/' })
+    await navigate({ to: '/' })
+  } finally {
+    setIsLoading(false)
   }
+}
 
   return (
     <AuthLayout mode="login">
@@ -98,11 +107,12 @@ export default function LoginPage() {
         )}
 
         <button
-          type="submit"
-          className="mt-5 w-full cursor-pointer rounded-sm bg-[#d9914d] px-5 py-3.5 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67]"
-        >
-          Entrar
-        </button>
+  type="submit"
+  disabled={isLoading}
+  className="mt-5 w-full cursor-pointer rounded-sm bg-[#d9914d] px-5 py-3.5 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67] disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {isLoading ? 'Entrando...' : 'Entrar'}
+</button>
       </form>
     </AuthLayout>
   )

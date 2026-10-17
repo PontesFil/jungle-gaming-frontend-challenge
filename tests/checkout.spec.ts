@@ -41,14 +41,19 @@ test('deve exigir login antes de finalizar a compra', async ({ page }) => {
 })
 
 test('deve permitir finalizar a compra após login', async ({ page }) => {
-  await page.goto('/login')
+  
+  await page.goto('/register')
 
+  await page.getByLabel('Nome').fill('Colecionador Teste')
   await page.getByLabel('E-mail').fill('teste@kurio.com')
-  await page.getByLabel('Senha').fill('123456')
+  await page.getByLabel('Senha', { exact: true }).fill('123456')
+  await page.getByLabel('Confirmar senha').fill('123456')
 
   await page.getByRole('button', {
-    name: /^entrar$/i,
+    name: /^criar conta$/i,
   }).click()
+
+  await expect(page).toHaveURL(/\/$/)
 
   await page.goto('/nft/1')
 
