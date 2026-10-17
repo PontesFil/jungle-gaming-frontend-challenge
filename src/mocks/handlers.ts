@@ -14,6 +14,7 @@ interface StoredOrder {
   orderId: string
   ownerEmail: string
   nftIds: string[]
+  expectedPrices?: Record<string, number>
   status: 'confirmed'
   createdAt: string
 }
@@ -266,6 +267,7 @@ if (invalidItems) {
     )
 
    
+
 if (existingOrder) {
   const sameItems =
     existingOrder.nftIds.length === nftIds.length &&
@@ -273,7 +275,14 @@ if (existingOrder) {
       (id, index) => id === nftIds[index],
     )
 
-  if (!sameItems) {
+  const samePrices =
+    existingOrder.expectedPrices !== undefined &&
+    nftIds.every(
+      (id) =>
+        existingOrder.expectedPrices?.[id] === expectedPrices[id],
+    )
+
+  if (!sameItems || !samePrices) {
     return HttpResponse.json(
       {
         message:
@@ -290,12 +299,14 @@ if (existingOrder) {
 }
 
 
+
      const order: StoredOrder = {
       orderId: crypto.randomUUID(),
       ownerEmail,
       nftIds,
       status: 'confirmed',
       createdAt: new Date().toISOString(),
+      expectedPrices: { ...expectedPrices },
     }
 
     const orderWithKey = {
