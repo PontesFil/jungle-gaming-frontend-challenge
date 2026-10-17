@@ -1,6 +1,13 @@
+
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
+import { Eye, EyeOff } from 'lucide-react'
+
 import { useAuth } from '../contexts/AuthContext'
+import AuthLayout from '../components/auth/AuthLayout'
+
+const inputClass =
+  'w-full rounded-sm border border-[#493025] bg-[#1a100d] px-4 py-3 font-mono text-xs text-[#f5eee7] outline-none transition placeholder:text-[#927057] focus:border-[#d9914d] focus:ring-1 focus:ring-[#d9914d]/30'
 
 export default function LoginPage() {
   const { login } = useAuth()
@@ -8,6 +15,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -25,62 +33,77 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#140e0c] px-6 py-12 text-white">
-      <section className="mx-auto max-w-md rounded-xl border border-white/10 bg-[#211714] p-8">
-        <h1 className="mb-6 text-3xl font-bold text-orange-400">
-          Entrar na Kurio
-        </h1>
+    <AuthLayout mode="login">
+      <form
+        onSubmit={handleSubmit}
+        className="mt-7 space-y-3"
+      >
+        <div>
+          <label htmlFor="email" className="sr-only">
+            E-mail
+          </label>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label htmlFor="email" className="mb-2 block">
-              E-mail
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-lg border border-white/20 bg-[#140e0c] p-3 text-white"
-            />
-          </div>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="contato@email.com"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            className={inputClass}
+          />
+        </div>
 
-          <div>
-            <label htmlFor="password" className="mb-2 block">
-              Senha
-            </label>
+        <div>
+          <label htmlFor="password" className="sr-only">
+            Senha
+          </label>
+
+          <div className="relative">
             <input
               id="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              placeholder="Senha"
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-lg border border-white/20 bg-[#140e0c] p-3 text-white"
+              className={`${inputClass} pr-12`}
             />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword((value) => !value)}
+              aria-label={
+  showPassword
+    ? 'Ocultar conteúdo do campo'
+    : 'Exibir conteúdo do campo'
+}
+              className="absolute inset-y-0 right-0 flex w-11 cursor-pointer items-center justify-center text-[#c9925d] transition hover:text-[#f5eee7]"
+            >
+              {showPassword ? (
+                <EyeOff size={17} />
+              ) : (
+                <Eye size={17} />
+              )}
+            </button>
           </div>
+        </div>
 
-          {error && (
-            <p role="alert" className="text-sm text-red-400">
-              {error}
-            </p>
-          )}
+        {error && (
+          <p role="alert" className="text-xs text-red-300">
+            {error}
+          </p>
+        )}
 
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-orange-500 py-3 font-bold text-black"
-          >
-            Entrar
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-white/60">
-          Ainda não tem conta?{' '}
-          <Link to="/register"        className="text-orange-400 underline">
-            Criar conta
-          </Link>
-        </p>
-      </section>
-    </main>
+        <button
+          type="submit"
+          className="mt-5 w-full cursor-pointer rounded-sm bg-[#d9914d] px-5 py-3.5 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67]"
+        >
+          Entrar
+        </button>
+      </form>
+    </AuthLayout>
   )
 }

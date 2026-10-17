@@ -1,6 +1,13 @@
+
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
+import { Eye, EyeOff } from 'lucide-react'
+
 import { useAuth } from '../contexts/AuthContext'
+import AuthLayout from '../components/auth/AuthLayout'
+
+const inputClass =
+  'w-full rounded-sm border border-[#493025] bg-[#1a100d] px-4 py-3 font-mono text-xs text-[#f5eee7] outline-none transition placeholder:text-[#927057] focus:border-[#d9914d] focus:ring-1 focus:ring-[#d9914d]/30'
 
 export default function RegisterPage() {
   const { register } = useAuth()
@@ -9,6 +16,8 @@ export default function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -17,6 +26,11 @@ export default function RegisterPage() {
 
     if (password.length < 6) {
       setError('A senha precisa ter pelo menos 6 caracteres.')
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setError('As senhas não coincidem.')
       return
     }
 
@@ -31,67 +45,113 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#140e0c] px-6 py-12 text-white">
-      <section className="mx-auto max-w-md rounded-xl border border-white/10 bg-[#211714] p-8">
-        <h1 className="mb-6 text-3xl font-bold text-orange-400">
-          Criar conta
-        </h1>
+    <AuthLayout mode="register">
+      <form
+        onSubmit={handleSubmit}
+        className="mt-7 space-y-3"
+      >
+        <div>
+          <label htmlFor="name" className="sr-only">
+            Nome
+          </label>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label htmlFor="name" className="mb-2 block">Nome</label>
-            <input
-              id="name"
-              type="text"
-              required
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              className="w-full rounded-lg border border-white/20 bg-[#140e0c] p-3"
-            />
-          </div>
+          <input
+            id="name"
+            type="text"
+            autoComplete="name"
+            placeholder="Nome de usuário"
+            required
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            className={inputClass}
+          />
+        </div>
 
-          <div>
-            <label htmlFor="email" className="mb-2 block">E-mail</label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-lg border border-white/20 bg-[#140e0c] p-3"
-            />
-          </div>
+        <div>
+          <label htmlFor="email" className="sr-only">
+            E-mail
+          </label>
 
-          <div>
-            <label htmlFor="password" className="mb-2 block">Senha</label>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="Digite seu e-mail"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            className={inputClass}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="password" className="sr-only">
+            Senha
+          </label>
+
+          <div className="relative">
             <input
               id="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+              placeholder="Senha"
               required
               minLength={6}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-lg border border-white/20 bg-[#140e0c] p-3"
+              className={`${inputClass} pr-12`}
             />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword((value) => !value)}
+              aria-label={
+                showPassword ? 'Ocultar senha' : 'Mostrar senha'
+              }
+              className="absolute inset-y-0 right-0 flex w-11 cursor-pointer items-center justify-center text-[#c9925d] transition hover:text-[#f5eee7]"
+            >
+              {showPassword ? (
+                <EyeOff size={17} />
+              ) : (
+                <Eye size={17} />
+              )}
+            </button>
           </div>
+        </div>
 
-          {error && <p role="alert" className="text-red-400">{error}</p>}
+        <div>
+          <label htmlFor="confirm-password" className="sr-only">
+            Confirmar senha
+          </label>
 
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-orange-500 py-3 font-bold text-black"
-          >
-            Criar conta
-          </button>
-        </form>
+          <input
+            id="confirm-password"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="new-password"
+            placeholder="Confirmar senha"
+            required
+            minLength={6}
+            value={confirmPassword}
+            onChange={(event) =>
+              setConfirmPassword(event.target.value)
+            }
+            className={inputClass}
+          />
+        </div>
 
-        <p className="mt-6 text-center text-sm text-white/60">
-          Já tem conta?{' '}
-          <Link to="/login" className="text-orange-400 underline">
-            Entrar
-          </Link>
-        </p>
-      </section>
-    </main>
+        {error && (
+          <p role="alert" className="text-xs text-red-300">
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          className="mt-5 w-full cursor-pointer rounded-sm bg-[#d9914d] px-5 py-3.5 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67]"
+        >
+          Criar conta
+        </button>
+      </form>
+    </AuthLayout>
   )
 }
