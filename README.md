@@ -11,7 +11,7 @@ O projeto demonstra uma jornada de navegação e compra simulada de NFTs, com ca
 - **Servidor Socket.IO:** https://jungle-gaming-frontend-challenge.onrender.com/
 - **Health check:** https://jungle-gaming-frontend-challenge.onrender.com/health
 
-> **Aviso:** este projeto utiliza dados simulados. Não realiza transações reais com criptomoedas nem conexões efetivas com carteiras digitais.
+> **Aviso:** este projeto utiliza dados simulados. Não realiza transações reais em blockchain ou com criptomoedas nem conexões efetivas com carteiras digitais.
 
 ## Tecnologias
 
@@ -34,6 +34,8 @@ O projeto demonstra uma jornada de navegação e compra simulada de NFTs, com ca
 - Persistência do carrinho por conta simulada, com separação dos dados entre usuários no navegador.
 - Atualização de preços em tempo real no catálogo e no carrinho via Socket.IO.
 - Login e cadastro simulados.
+- Edição do nome de exibição no perfil do colecionador, com persistência após refresh e novo login. O nome deve ter de 2 a 80 caracteres após remover espaços nas extremidades, conter pelo menos uma letra ou número e não conter caracteres de controle.
+- Alteração de senha pelo usuário autenticado, com validação da senha atual, nova senha com pelo menos 6 caracteres e confirmação correspondente. A sessão é preservada e, após a troca, a senha antiga é rejeitada no login.
 - Checkout com dados do colecionador, seleção simulada de carteira e rede e revisão do pedido.
 - Validação de itens e estrutura dos preços enviados ao checkout mockado.
 - Cenário determinístico de indisponibilidade do checkout via MSW (HTTP 503), com preservação do carrinho e possibilidade de nova tentativa.
@@ -108,9 +110,13 @@ npm run lighthouse
 npm run preview
 ```
 
-A suíte contém dez testes E2E com Playwright, cobrindo catálogo, detalhes dos NFTs, autenticação simulada, checkout, idempotência, isolamento de pedidos entre contas e recuperação após indisponibilidade simulada do checkout (HTTP 503).
+A suíte contém 16 testes E2E com Playwright, aprovados na última execução, cobrindo catálogo, detalhes dos NFTs, autenticação simulada, edição de nome, alteração de senha, checkout, idempotência, isolamento de pedidos entre contas e recuperação após indisponibilidade simulada do checkout (HTTP 503).
 
 Os testes de isolamento verificam que um pedido confirmado para uma conta não é exibido para outra conta ou para um visitante sem sessão. O teste de recuperação verifica que uma falha simulada não conclui a compra, preserva o carrinho e permite uma nova tentativa após a restauração do serviço.
+
+Os testes de perfil verificam a edição do nome, sua persistência após refresh e novo login, a validação de nomes inválidos e a preservação da sessão quando a API rejeita a alteração. Os testes de senha verificam senha atual incorreta, campos vazios, tamanho mínimo, confirmação divergente, troca bem-sucedida, login com a nova senha após logout e rejeição da anterior, além da exigência de sessão no endpoint.
+
+Ter 16 testes Playwright passando não significa cobrir todos os 12 cenários obrigatórios do desafio; a cobertura automatizada permanece parcial.
 
 ## Cenários determinísticos do MSW
 
@@ -192,12 +198,13 @@ Consulte [ARCHITECTURE.md](./ARCHITECTURE.md) para conhecer a estrutura do proje
 Este projeto representa uma implementação parcial do escopo do desafio.
 
 - O cadastro e o login utilizam endpoints REST simulados pelo MSW, com verificação das credenciais armazenadas localmente. A sessão permanece no localStorage, sem tokens ou autenticação validada por um backend seguro. Não é uma implementação apropriada para produção.
+- As senhas são persistidas como hashes SHA-256 simples, inadequados para armazenamento de senhas em produção. Um backend real deveria utilizar Argon2id ou bcrypt.
 - A separação dos carrinhos é realizada por identificador de usuário no `localStorage`; não constitui isolamento de segurança entre contas autenticadas em um backend.
 - Os dados dos pedidos são persistidos no `localStorage`, sem armazenamento remoto seguro ou sincronização entre dispositivos.
 - O carrinho ainda não possui gerenciamento de quantidades, cupons ou taxas de rede.
 - A busca e a ordenação não são sincronizadas com parâmetros da URL; não há paginação.
 - As carteiras e redes são selecionadas apenas de forma ilustrativa, sem integração com carteiras reais.
-- As páginas de perfil e carteira são demonstrativas e permitem visualizar informações da sessão, mas não oferecem edição de dados, conexão real de carteiras ou gerenciamento de credenciais.
+- A edição de perfil se limita ao nome de exibição e à senha; a edição de e-mail e de imagem do avatar ainda não está disponível. A página de carteira permanece demonstrativa.
 - O servidor Socket.IO demonstra atualizações de preços, mas não implementa o protocolo completo de eventos versionados ou eventos de atualização de pedidos.
 - O serviço de preços em tempo real e a API mockada não compartilham uma fonte autoritativa de preços. Por esse motivo, o checkout valida a estrutura dos valores enviados, mas **não realiza uma revalidação real de preços contra o servidor**.
 - Ainda não há uma suíte dedicada de testes de regressão visual.

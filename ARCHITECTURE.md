@@ -11,6 +11,8 @@ O objetivo desta arquitetura é demonstrar a separação entre interface, estado
 ```text
 src/
 ├── components/
+│   ├── account/
+│   │   └── PasswordChangeForm.tsx
 │   ├── home/
 │   └── layout/
 ├── contexts/
@@ -29,6 +31,8 @@ src/
 │   ├── nftService.ts
 │   └── socket.ts
 ├── types/
+├── utils/
+│   └── displayName.ts
 ├── main.tsx
 └── router.tsx
 
@@ -41,7 +45,9 @@ tests/
 ├── checkout.spec.ts
 ├── checkout-recovery.spec.ts
 ├── idempotency.spec.ts
-└── isolation.spec.ts
+├── isolation.spec.ts
+├── password.spec.ts
+└── profile.spec.ts
 ```
 
 ## Navegação
@@ -52,7 +58,7 @@ O deploy na Vercel utiliza uma regra de rewrite para permitir acesso direto às 
 
 ## API REST e MSW
 
-O Mock Service Worker intercepta requisições HTTP no navegador e fornece respostas simuladas.
+O Mock Service Worker intercepta requisições HTTP no navegador e fornece respostas simuladas. Em `src/main.tsx`, a inicialização utiliza `worker.start({ quiet: true })` para evitar logs automáticos de requisições contendo credenciais.
 
 Entre os endpoints utilizados estão:
 
@@ -62,13 +68,18 @@ Entre os endpoints utilizados estão:
 | GET | `/api/nfts` | Retorna o catálogo simulado de NFTs |
 | POST | `/api/auth/register` | Cadastra uma conta simulada; retorna 409 para e-mail duplicado |
 | POST | `/api/auth/login` | Valida credenciais simuladas; retorna 401 para credenciais inválidas |
+| PATCH | `/api/auth/me` | Valida e altera somente o nome de exibição da conta autenticada na simulação |
+| PATCH | `/api/auth/password` | Valida a senha atual e a nova senha e altera somente o hash da conta autenticada na simulação |
 | POST | `/api/checkout` | Valida a estrutura do pedido e aplica a regra de idempotência |
 | GET | `/api/orders/:orderId` | Consulta um pedido associado à sessão simulada |
 
-O cadastro e o login são interceptados pelo MSW. As contas são armazenadas no navegador e as senhas são transformadas em hashes SHA-256 para a simulação. Isso não equivale ao armazenamento seguro de senhas ou à autenticação de um backend de produção.
+O cadastro, o login e as alterações de nome e senha são interceptados pelo MSW. As contas são persistidas no `localStorage`, na chave `kurio-mock-accounts`, com nome, e-mail e `passwordHash`. O cadastro, a verificação de credenciais e a alteração de senha reutilizam a função `hashPassword`, baseada em SHA-256 com `crypto.subtle.digest`; senhas não são persistidas em texto puro.
+
+SHA-256 simples não é adequado para armazenamento de senhas em produção. Um backend real deveria utilizar Argon2id ou bcrypt. A autenticação e o armazenamento local deste projeto são apenas simulados e não equivalem à segurança de um backend de produção.
+
 O checkout utiliza uma chave de idempotência. Repetir uma requisição com a mesma chave, os mesmos NFTs e os mesmos preços esperados retorna o pedido original. Reutilizar a chave com itens ou preços diferentes retorna HTTP 409. A verificação não representa revalidação dos preços atuais do servidor.
 
-O Axios centraliza as chamadas HTTP nos módulos de serviço.
+O Axios é utilizado nos módulos de serviço e no `AuthContext` para chamadas HTTP.
 
 A confirmação de compra consulta a API antes de apresentar o estado de sucesso. A criação de pedidos utiliza uma chave de idempotência para evitar a criação duplicada do mesmo pedido em tentativas repetidas.
 
@@ -91,6 +102,12 @@ O TanStack Query gerencia os dados assíncronos do catálogo e a consulta de ped
 O `CartContext` gerencia os itens do carrinho, enquanto o `AuthContext` mantém a sessão simulada.
 
 O `AuthContext` mantém uma sessão demonstrativa no `localStorage`, utilizando a chave `kurio-user`. O cadastro e o login consultam endpoints simulados pelo MSW.
+
+A edição do nome na `ProfilePage` chama `updateDisplayName`, que envia `{ name }` para `PATCH /api/auth/me`. O formulário, o contexto e o handler compartilham a validação de `src/utils/displayName.ts`: de 2 a 80 caracteres após remover espaços nas extremidades, com pelo menos uma letra ou número e sem caracteres de controle. O handler altera somente o nome na fonte de contas. Apenas após a API confirmar sucesso, o `AuthContext` atualiza o usuário em memória e a sessão em `kurio-user`, mantendo o e-mail. A persistência nas contas permite recuperar o nome atualizado após refresh e novo login.
+
+O `PasswordChangeForm` valida o preenchimento da senha atual, a nova senha com pelo menos 6 caracteres, conforme o cadastro, e a confirmação correspondente. A confirmação é validada no formulário; `changePassword` envia somente `{ currentPassword, newPassword }` para `PATCH /api/auth/password`. O handler exige uma conta autenticada na simulação, compara o hash da senha atual e rejeita senha incorreta com HTTP 403. Após validar a nova senha, atualiza somente `passwordHash` da conta. A alteração não modifica o `AuthContext` nem `kurio-user`, não invalida a sessão e preserva nome, e-mail, carrinho e pedidos. Depois da troca, o login aceita a nova senha e rejeita a anterior.
+
+Os dois formulários apresentam mensagens acessíveis de erro e sucesso, estado de carregamento e prevenção de envios repetidos. Após a troca de senha bem-sucedida, seus campos são limpos.
 
 O `CartContext` persiste os itens por conta simulada, enquanto os pedidos são armazenados localmente e consultados por meio da API mockada.
 
@@ -129,12 +146,14 @@ Ainda são necessárias melhorias para implementar um fluxo totalmente consisten
 
 O checkout ainda não realiza uma revalidação transacional de preço e disponibilidade no momento da confirmação.
 
+O fluxo não realiza transações reais em blockchain nem conexão efetiva com carteiras digitais.
+
 
 ## Testes
 
 O projeto utiliza Playwright para testes E2E executados em Chromium.
 
-A suíte contém dez testes automatizados, abrangendo:
+A suíte contém 16 testes automatizados, aprovados na última execução, abrangendo:
 
 - Exibição do catálogo de NFTs.
 - Navegação para os detalhes de um NFT.
@@ -146,10 +165,16 @@ A suíte contém dez testes automatizados, abrangendo:
 - Idempotência do checkout, incluindo reutilização válida da chave e rejeição de alterações nos itens ou preços.
 - Isolamento funcional de pedidos entre contas e visitantes sem sessão.
 - Falha controlada HTTP 503, preservação do carrinho e recuperação do checkout após nova tentativa.
+- Edição do nome, persistência após refresh e novo login, validação de nomes inválidos e preservação da sessão quando a API rejeita a alteração.
+- Alteração de senha, rejeição da senha atual incorreta, validação de campos vazios, tamanho mínimo e confirmação divergente, login com a nova senha após logout e rejeição da senha antiga.
 
 O teste de isolamento realiza cadastro e compra pela interface antes de verificar a consulta do mesmo pedido em outra sessão simulada.
 
 O teste de recuperação ativa o cenário `checkout-error`, verifica o feedback apresentado ao usuário e confirma que a compra pode ser concluída após desativar a falha.
+
+`tests/profile.spec.ts` reúne dois testes de edição de nome e `tests/password.spec.ts` reúne quatro testes de senha. Os testes de senha também verificam a rejeição de nova senha curta e de chamadas sem sessão no endpoint, a preservação dos demais dados da conta, de outra conta, da sessão, do carrinho e dos pedidos, além da ausência da nova senha em texto puro nos dados persistidos e nos logs capturados durante a alteração.
+
+Ter 16 testes Playwright passando não significa cobrir todos os 12 cenários obrigatórios do desafio. A quantidade de testes não equivale à cobertura integral dos requisitos.
 
 ### Comandos de validação
 
