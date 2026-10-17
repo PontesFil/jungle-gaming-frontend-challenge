@@ -17,9 +17,9 @@ export default function Footer() {
               </h2>
 
               <p className="mt-2 max-w-xs text-xs leading-5 text-[#b99674]">
-                Arte digital e colecionáveis em uma
-                experiência demonstrativa.
-              </p>
+  Explore arte digital, descubra coleções
+  e encontre seus NFTs favoritos.
+</p>
             </div>
 
             <Link
@@ -38,9 +38,8 @@ export default function Footer() {
             </p>
 
             <p className="mt-3 font-mono text-[10px] text-[#806555]">
-              © 2026 Kurio. Projeto demonstrativo.
-              Projeto demonstrativo.
-            </p>
+  © 2026 Kurio. Todos os direitos reservados.
+</p>
           </div>
         </div>
       </div>
@@ -86,13 +85,13 @@ export default function Footer() {
               </div>
 
               <h2 className="font-mono text-sm font-bold text-white">
-                Experiência segura
-              </h2>
+  Explore com tranquilidade
+</h2>
 
               <p className="mt-2 text-xs leading-relaxed">
-                Checkout simulado, sem transações
-                financeiras ou blockchain reais.
-              </p>
+  Conheça NFTs, organize sua seleção
+  e explore o processo de compra.
+</p>
             </div>
 
             <div>
@@ -204,7 +203,7 @@ export default function Footer() {
                 to="/wallet"
                 className="hover:text-[#e9a15c]"
               >
-                Carteira demonstrativa
+                Minha carteira
               </Link>
             </div>
           </div>
@@ -215,10 +214,10 @@ export default function Footer() {
             </h2>
 
             <p className="mt-4 text-xs leading-relaxed">
-              Projeto frontend desenvolvido como
-              desafio técnico, com autenticação,
-              dados e compras simulados.
-            </p>
+  Projeto desenvolvido como desafio técnico.
+  Autenticação, compras e dados são simulados,
+  sem transações blockchain reais.
+</p>
 
             <p className="mt-4 text-xs text-[#e9a15c]">
               React · TypeScript · TanStack
@@ -228,8 +227,9 @@ export default function Footer() {
 
         <div className="border-t border-[#493025] px-4 py-5 text-center">
           <p className="font-mono text-[11px] text-[#96755f]">
-            © 2026 Kurio. Projeto demonstrativo.
-            Projeto demonstrativo.
+            <p className="mt-3 font-mono text-[10px] text-[#806555]">
+  © 2026 Kurio. Todos os direitos reservados.
+</p>
           </p>
         </div>
       </div>

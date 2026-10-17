@@ -94,7 +94,7 @@ export default function ProfilePage() {
               </h1>
 
               <p className="mt-3 text-xs leading-6 text-[#b99674] md:text-sm">
-                Visualize as informações da sua conta demonstrativa.
+                Visualize as informações da sua conta e seus dados de colecionador.
               </p>
             </header>
 
@@ -120,7 +120,7 @@ export default function ProfilePage() {
                 </p>
 
                 <span className="mt-2 inline-block rounded-full border border-[#67412c] px-3 py-1 font-mono text-[10px] text-[#e9a15c]">
-                  Conta demonstrativa
+                  Colecionador Kurio
                 </span>
               </div>
             </section>
@@ -201,8 +201,8 @@ export default function ProfilePage() {
                   </p>
 
                   <div className={fieldClass}>
-                    Conta demonstrativa
-                  </div>
+  Colecionador
+</div>
                 </div>
               </div>
             </section>
@@ -248,10 +248,10 @@ export default function ProfilePage() {
                   </h2>
 
                   <p className="mt-3 max-w-2xl text-xs leading-6 text-[#b99674] md:text-sm md:leading-7">
-                    O Kurio utiliza autenticação simulada.
-                    Não há gerenciamento de senha real nem
-                    alteração de credenciais nesta demonstração.
-                  </p>
+  Sua sessão é gerenciada localmente neste navegador.
+  A alteração de senha e o gerenciamento de
+  credenciais não estão disponíveis.
+</p>
                 </div>
               </div>
             </section>
@@ -274,13 +274,7 @@ export default function ProfilePage() {
               </Link>
             </div>
           </div>
-        </div>
-
-        <p className="mt-10 border-t border-[#493025] pt-5 text-[11px] leading-6 text-[#96755f] md:mt-12 md:text-xs">
-          As informações exibidas são provenientes da sessão
-          demonstrativa. Nenhuma conta blockchain ou identidade
-          ENS real está vinculada ao perfil.
-        </p>
+        </div>        
       </div>
     </main>
   )

@@ -34,8 +34,8 @@ export default function WalletPage() {
           </h1>
 
           <p className="mt-4 text-sm leading-7 text-[#b99674]">
-            Entre na sua conta para visualizar o painel
-            demonstrativo da carteira.
+            Entre na sua conta para visualizar
+as informações da sua carteira.
           </p>
 
           <Link
@@ -82,7 +82,7 @@ export default function WalletPage() {
             {/* Cabeçalho */}
             <header className="mb-7 border-b border-[#493025] pb-6 md:mb-9">
               <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#d9914d] md:text-xs">
-                Painel demonstrativo
+                Minha conta
               </p>
 
               <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -206,10 +206,9 @@ export default function WalletPage() {
               </h2>
 
               <p className="mt-3 text-xs leading-6 text-[#b99674] md:text-sm md:leading-7">
-                Você ainda não adicionou uma carteira secundária.
-                O cadastro de carteiras não está disponível
-                nesta demonstração.
-              </p>
+  Nenhuma carteira secundária foi adicionada.
+  O cadastro de novas carteiras não está disponível.
+</p>
             </section>
 
             {/* Minha seleção */}
@@ -271,11 +270,10 @@ export default function WalletPage() {
                 </p>
 
                 <p className="mt-2 text-xs leading-6 text-[#b99674]">
-                  Esta interface é demonstrativa. Não há
-                  conexão com MetaMask, WalletConnect ou
-                  contratos inteligentes. Nenhum saldo,
-                  endereço ou ativo blockchain real é consultado.
-                </p>
+  Esta é uma visualização demonstrativa.
+  Não há conexão real com carteiras digitais,
+  contratos inteligentes ou ativos blockchain.
+</p>
               </div>
             </div>
           </div>

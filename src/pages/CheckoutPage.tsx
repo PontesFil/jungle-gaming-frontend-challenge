@@ -105,8 +105,8 @@ export default function CheckoutPage() {
           </h1>
 
           <p className="mt-4 max-w-md text-sm leading-7 text-[#b99674]">
-            Faça login na sua conta demonstrativa para continuar
-            com a finalização do pedido.
+            Faça login na sua conta para continuar
+com a finalização do pedido.
           </p>
 
           <Link
@@ -135,7 +135,7 @@ export default function CheckoutPage() {
 
           <p className="mt-4 max-w-md text-sm leading-7 text-[#b99674]">
             Adicione pelo menos um NFT à sua seleção para
-            continuar com o pagamento demonstrativo.
+continuar com o pagamento.
           </p>
 
           <Link
@@ -208,7 +208,7 @@ export default function CheckoutPage() {
 
           <p className="mt-4 max-w-xl text-sm leading-7 text-[#b99674]">
             Revise seus dados, confira os NFTs selecionados e
-            confirme seu pedido demonstrativo.
+confirme seu pedido.
           </p>
         </div>
 
@@ -332,7 +332,7 @@ export default function CheckoutPage() {
                   </h2>
 
                   <p className="mt-2 text-xs leading-5 text-[#b99674] md:text-sm">
-                    Escolha as opções para simular o pagamento.
+                    Selecione sua carteira e a rede desejada para continuar.
                   </p>
                 </div>
               </div>
@@ -392,13 +392,8 @@ export default function CheckoutPage() {
       }
       className={inputClass}
     >
-      <option value="metamask">
-        MetaMask (simulada)
-      </option>
-
-      <option value="walletconnect">
-        WalletConnect (simulada)
-      </option>
+      <option value="metamask">MetaMask</option>
+<option value="walletconnect">WalletConnect</option>
     </select>
   </div>
 
@@ -434,15 +429,13 @@ export default function CheckoutPage() {
 
                 <div>
                   <p className="font-mono text-xs font-bold text-[#f5eee7]">
-                    Ambiente demonstrativo
-                  </p>
+  Ambiente de demonstração
+</p>
 
-                  <p className="mt-2 text-xs leading-6 text-[#b99674]">
-                    Nenhuma carteira real será conectada e
-                    nenhuma transação em blockchain será realizada.
-                    As opções acima servem apenas para simular
-                    a experiência de pagamento.
-                  </p>
+<p className="mt-2 text-xs leading-6 text-[#b99674]">
+  Nenhuma carteira real será conectada e nenhuma
+  transação ou transferência de criptomoedas será realizada.
+</p>
                 </div>
               </div>
             </section>
@@ -552,8 +545,7 @@ export default function CheckoutPage() {
               />
 
               <span className="text-xs leading-6 text-[#c6a17b]">
-                Revisei os dados e desejo confirmar este
-                pedido simulado.
+                Revisei os dados e desejo confirmar este pedido.
               </span>
             </label>
 
@@ -589,10 +581,6 @@ export default function CheckoutPage() {
               </p>
             )}
 
-            <p className="mt-4 text-center text-xs leading-6 text-[#96755f]">
-              Ao confirmar, você conclui apenas uma
-              compra simulada.
-            </p>
           </aside>
         </form>
       </div>

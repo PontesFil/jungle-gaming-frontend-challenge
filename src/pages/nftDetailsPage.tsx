@@ -246,11 +246,7 @@ export default function NftDetailsPage() {
                   Ver carrinho →
                 </Link>
               </div>
-
-              <p className="mt-4 text-xs leading-relaxed text-[#96755f]">
-                Compra demonstrativa. Nenhuma transação
-                financeira ou blockchain real será realizada.
-              </p>
+              
             </div>
           </section>
         </div>
@@ -264,18 +260,17 @@ export default function NftDetailsPage() {
           <div className="mt-6 grid gap-8 md:grid-cols-[minmax(0,1.4fr)_minmax(220px,0.6fr)]">
             <div>
               <p className="max-w-3xl text-sm leading-7 text-[#b99674]">
-                {nft.name} faz parte da seleção de arte digital
-                do Kurio. Este item é apresentado em um
-                marketplace demonstrativo, criado para
-                explorar experiências de descoberta,
-                coleção e compra de NFTs.
-              </p>
+  {nft.name} faz parte da coleção de arte digital
+  do Kurio Marketplace. Uma seleção que reúne
+  criatividade, identidade visual e novas formas
+  de explorar colecionáveis digitais.
+</p>
 
               <p className="mt-4 max-w-3xl text-sm leading-7 text-[#b99674]">
-                Os dados de preço e disponibilidade são
-                simulados. A experiência não representa
-                a transferência de um ativo real.
-              </p>
+  Explore os detalhes da obra, acompanhe seu
+  preço e descubra outros NFTs que fazem
+  parte desta coleção.
+</p>
             </div>
 
             <dl className="space-y-4 border-l border-[#493025] pl-5 font-mono text-xs">

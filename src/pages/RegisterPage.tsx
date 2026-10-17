@@ -72,7 +72,7 @@ return (
             id="name"
             type="text"
             autoComplete="name"
-            placeholder="Nome de usuário"
+            placeholder="Seu nome"
             required
             value={name}
             onChange={(event) => setName(event.target.value)}

@@ -46,7 +46,7 @@ export default function ConfirmationPage() {
     message = 'Nenhum identificador de pedido foi fornecido.'
   } else if (isPending) {
     title = 'Verificando pedido...'
-    message = 'Aguarde enquanto consultamos a API simulada.'
+    message = 'Aguarde enquanto verificamos os dados do pedido.'
   } else if (isError) {
     title = 'Pedido não confirmado'
 
@@ -56,8 +56,7 @@ export default function ConfirmationPage() {
         : 'Não foi possível verificar o pedido. Tente novamente.'
   } else if (confirmed) {
     title = 'Compra confirmada!'
-    message =
-      'Seu pedido foi confirmado com sucesso pela API simulada.'
+    message = 'Seu pedido foi registrado e confirmado com sucesso.'
   }
 
   const checking = Boolean(user && orderId && isPending)
@@ -256,16 +255,15 @@ export default function ConfirmationPage() {
                 />
 
                 <div>
-                  <p className="font-mono text-xs font-bold">
-                    Compra demonstrativa
-                  </p>
+  <p className="font-mono text-xs font-bold">
+    Ambiente de demonstração
+  </p>
 
-                  <p className="mt-2 text-xs leading-6 text-[#b99674]">
-                    Este pedido foi registrado na API simulada.
-                    Nenhuma transferência de criptomoeda ou
-                    NFT real foi realizada.
-                  </p>
-                </div>
+  <p className="mt-2 text-xs leading-6 text-[#b99674]">
+    Este pedido é demonstrativo. Nenhuma transferência
+    real de NFTs ou criptomoedas foi realizada.
+  </p>
+</div>
               </div>
             </div>
           )}

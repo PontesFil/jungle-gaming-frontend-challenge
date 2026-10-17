@@ -233,11 +233,10 @@ export default function CartPage() {
                 </span>
 
                 <p className="text-xs leading-6 text-[#b99674]">
-                  Os preços são demonstrativos e podem ser
-                  atualizados durante a navegação. O total
-                  exibido acompanha os valores dos itens
-                  no carrinho.
-                </p>
+  Os preços podem variar durante a navegação.
+  O total do carrinho é atualizado
+  automaticamente para refletir essas alterações.
+</p>
               </div>
             </section>
 
@@ -293,11 +292,6 @@ export default function CartPage() {
                   Ir para pagamento
                   <ArrowRight size={16} />
                 </button>
-
-                <p className="mt-4 text-center text-xs leading-6 text-[#96755f]">
-                  Checkout demonstrativo. Nenhuma
-                  criptomoeda será transferida.
-                </p>
 
                 <Link
                   to="/"
