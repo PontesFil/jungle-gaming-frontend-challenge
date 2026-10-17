@@ -265,12 +265,30 @@ if (invalidItems) {
         orderKey(order) === idempotencyKey,
     )
 
-    if (existingOrder) {
-      return HttpResponse.json({
-        orderId: existingOrder.orderId,
-        status: existingOrder.status,
-      })
-    }
+   
+if (existingOrder) {
+  const sameItems =
+    existingOrder.nftIds.length === nftIds.length &&
+    existingOrder.nftIds.every(
+      (id, index) => id === nftIds[index],
+    )
+
+  if (!sameItems) {
+    return HttpResponse.json(
+      {
+        message:
+          'Esta chave de idempotência já foi utilizada em outro pedido.',
+      },
+      { status: 409 },
+    )
+  }
+
+  return HttpResponse.json({
+    orderId: existingOrder.orderId,
+    status: existingOrder.status,
+  })
+}
+
 
      const order: StoredOrder = {
       orderId: crypto.randomUUID(),
