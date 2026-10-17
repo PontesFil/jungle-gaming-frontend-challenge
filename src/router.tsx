@@ -17,12 +17,11 @@ function RootLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-[#140e0c]">
       <Header />
-
-      <div className="flex-1">
-        <Outlet />
-      </div>
-
-      <Footer />
+<div className="flex-1">
+  <Outlet />
+</div>
+<Footer />
+<div aria-hidden="true" className="h-20 md:hidden" />
     </div>
   )
 }
