@@ -10,6 +10,7 @@ import {
 
 import { useAuth } from '../contexts/AuthContext'
 import AccountSidebar from '../components/account/AccountSidebar'
+import PasswordChangeForm from '../components/account/PasswordChangeForm'
 import { getDisplayNameError } from '../utils/displayName'
 
 const fieldClass =
@@ -311,10 +312,11 @@ export default function ProfilePage() {
                   </h2>
 
                   <p className="mt-3 max-w-2xl text-xs leading-6 text-[#b99674] md:text-sm md:leading-7">
-  Sua sessão é gerenciada localmente neste navegador.
-  A alteração de senha e o gerenciamento de
-  credenciais não estão disponíveis.
-</p>
+                    Sua sessão é gerenciada localmente neste navegador.
+                    Para alterar sua senha, confirme a senha atual abaixo.
+                  </p>
+
+                  <PasswordChangeForm />
                 </div>
               </div>
             </section>

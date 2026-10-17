@@ -27,7 +27,8 @@ async function enableMocking() {
 
   const { worker } = await import('./mocks/browser')
 
-  await worker.start()
+  // Evita expor credenciais nos logs automáticos dos mocks.
+  await worker.start({ quiet: true })
 }
 
 async function startApp() {

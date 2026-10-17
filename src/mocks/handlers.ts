@@ -247,6 +247,80 @@ export const handlers = [
     return HttpResponse.json({ user: { name, email: account.email } })
   }),
 
+  http.patch('/api/auth/password', async ({ request }) => {
+    const email = getCurrentEmail()
+
+    await delay(300)
+
+    const account = getAccounts().find((item) => item.email === email)
+
+    if (!account || getCurrentEmail() !== email) {
+      return HttpResponse.json(
+        { message: 'Faça login para alterar sua senha.' },
+        { status: 401 },
+      )
+    }
+
+    let body: { currentPassword?: unknown; newPassword?: unknown } | null
+
+    try {
+      body = await request.json() as typeof body
+    } catch {
+      return HttpResponse.json(
+        { message: 'Dados inválidos.' },
+        { status: 400 },
+      )
+    }
+
+    const currentPassword = body?.currentPassword
+    const newPassword = body?.newPassword
+
+    if (typeof currentPassword !== 'string' || !currentPassword) {
+      return HttpResponse.json(
+        { message: 'Informe a senha atual.' },
+        { status: 400 },
+      )
+    }
+
+    if (typeof newPassword !== 'string' || newPassword.length < 6) {
+      return HttpResponse.json(
+        { message: 'A nova senha precisa ter pelo menos 6 caracteres.' },
+        { status: 400 },
+      )
+    }
+
+    if (account.passwordHash !== await hashPassword(currentPassword)) {
+      return HttpResponse.json(
+        { message: 'Senha atual incorreta.' },
+        { status: 403 },
+      )
+    }
+
+    const passwordHash = await hashPassword(newPassword)
+    const accounts = getAccounts()
+    const currentAccount = accounts.find((item) => item.email === email)
+
+    if (!currentAccount || getCurrentEmail() !== email) {
+      return HttpResponse.json(
+        { message: 'Faça login para alterar sua senha.' },
+        { status: 401 },
+      )
+    }
+
+    if (currentAccount.passwordHash !== account.passwordHash) {
+      return HttpResponse.json(
+        { message: 'A senha foi alterada. Informe a senha atual e tente novamente.' },
+        { status: 409 },
+      )
+    }
+
+    saveAccounts(accounts.map((item) =>
+      item.email === email ? { ...item, passwordHash } : item,
+    ))
+
+    return HttpResponse.json({ message: 'Senha alterada com sucesso.' })
+  }),
+
   http.post('/api/checkout', async ({ request }) => {
     await delay(700)
 

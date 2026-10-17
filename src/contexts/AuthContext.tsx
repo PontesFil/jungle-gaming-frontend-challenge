@@ -23,6 +23,7 @@ interface AuthContextType {
   ) => Promise<boolean>
   logout: () => void
   updateDisplayName: (name: string) => Promise<void>
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -112,13 +113,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(updatedUser)
   }
 
+  async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    if (!user) {
+      throw new Error('Faça login para alterar sua senha.')
+    }
+
+    await axios.patch('/api/auth/password', { currentPassword, newPassword })
+  }
+
   function logout() {
     setUser(null)
     localStorage.removeItem('kurio-user')
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateDisplayName }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateDisplayName, changePassword }}>
       {children}
     </AuthContext.Provider>
   )
