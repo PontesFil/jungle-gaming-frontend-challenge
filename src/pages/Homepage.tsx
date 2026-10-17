@@ -38,7 +38,6 @@ export default function HomePage() {
 
       const matchesPrice = nft.price <= maxPrice
 
-      // O catálogo demonstrativo atual utiliza Ethereum.
       const matchesNetwork =
         network === 'Todas' || network === 'Ethereum'
 
@@ -71,17 +70,26 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#140e0c] px-4 py-8 text-white sm:px-8">
-      <div className="mx-auto max-w-7xl">
+    <main className="min-h-screen bg-[#140e0c] pb-20 text-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <Hero />
 
-        <section id="explorar" className="scroll-mt-24">
-          <div className="mb-6 flex items-center justify-between gap-4">
+        <section
+          id="explorar"
+          className="scroll-mt-24 pt-8"
+        >
+          {/* Cabeçalho do catálogo */}
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h2 className="font-mono text-2xl font-bold">
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#d9914d]">
+                Coleção selecionada
+              </p>
+
+              <h2 className="mt-2 font-mono text-2xl font-extrabold text-[#f5eee7]">
                 Explore NFTs
               </h2>
-              <p className="mt-1 text-sm text-[#b99674]">
+
+              <p className="mt-2 text-sm text-[#b99674]">
                 Descubra colecionáveis digitais selecionados.
               </p>
             </div>
@@ -93,13 +101,14 @@ export default function HomePage() {
               onClick={() =>
                 setShowMobileFilters((previous) => !previous)
               }
-              className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#d9904e] px-4 py-3 font-semibold text-[#140e0c] lg:hidden"
+              className="flex cursor-pointer items-center gap-2 rounded-md bg-[#d9914d] px-4 py-3 text-xs font-bold text-[#140e0c] lg:hidden"
             >
-              <SlidersHorizontal size={18} />
+              <SlidersHorizontal size={16} />
               Filtros
             </button>
           </div>
 
+          {/* Filtros mobile */}
           <div
             id="mobile-nft-filters"
             className={`mb-6 lg:hidden ${
@@ -109,11 +118,13 @@ export default function HomePage() {
             <NftFilters {...filterProps} />
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+          <div className="grid items-start gap-6 lg:grid-cols-[230px_minmax(0,1fr)] lg:gap-8">
+            {/* Sidebar desktop */}
             <div className="hidden lg:block">
               <NftFilters {...filterProps} />
             </div>
 
+            {/* Galeria */}
             <div className="min-w-0">
               {isLoading ? (
                 <p className="py-8 text-white/70">
@@ -125,46 +136,46 @@ export default function HomePage() {
                 </p>
               ) : (
                 <>
-                  <p className="mb-4 text-sm text-[#b99674]">
-                    {filteredNfts.length} NFTs encontrados
-                  </p>
+                  <div className="mb-5 flex items-center justify-between gap-4 border-b border-[#493025] pb-4">
+                    <span className="font-mono text-xs text-[#b99674]">
+                      {filteredNfts.length} NFTs encontrados
+                    </span>
 
-                  <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3">
+                    <span className="hidden font-mono text-xs text-[#8d7160] sm:block">
+                      Arte digital selecionada
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-9 sm:gap-x-6 xl:grid-cols-3">
                     {filteredNfts.map((nft) => (
                       <Link
                         key={nft.id}
                         to="/nft/$nftId"
                         params={{ nftId: nft.id }}
-                        className="group block overflow-hidden rounded-xl border border-[#513324] bg-[#241813] transition-all duration-300 hover:-translate-y-1 hover:border-[#d9904e]"
+                        className="group block min-w-0"
                       >
                         <article>
-                          <div className="aspect-square overflow-hidden bg-[#33231d]">
+                          <div className="aspect-square overflow-hidden rounded-lg bg-[#2b1b15]">
                             <img
                               src={nft.imageUrl}
                               alt={`Arte do NFT ${nft.name}`}
                               loading="lazy"
-                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
                             />
                           </div>
 
-                          <div className="space-y-2 p-3 sm:p-4">
-                            <h3 className="font-mono text-sm font-semibold text-white sm:text-base">
+                          <div className="pt-3">
+                            <h3 className="truncate font-mono text-xs font-semibold text-[#f5eee7] transition group-hover:text-[#e9a15c] sm:text-sm">
                               {nft.name}
                             </h3>
 
-                            <p className="hidden text-xs text-[#b99674] sm:block">
-                              Criado por {nft.creator}
+                            <p className="mt-1 truncate text-[11px] text-[#a98a70]">
+                              {nft.creator}
                             </p>
 
-                            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                              <span className="font-mono text-sm font-bold text-[#e39a52] sm:text-base">
-                                {nft.price.toFixed(2)} {nft.currency}
-                              </span>
-
-                              <span className="hidden text-xs text-[#b99674] transition-colors group-hover:text-[#e39a52] sm:inline">
-                                Ver detalhes →
-                              </span>
-                            </div>
+                            <p className="mt-2 font-mono text-sm font-extrabold text-[#e9a15c]">
+                              {nft.price.toFixed(2)} {nft.currency}
+                            </p>
                           </div>
                         </article>
                       </Link>

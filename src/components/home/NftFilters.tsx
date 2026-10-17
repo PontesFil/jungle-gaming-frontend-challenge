@@ -34,16 +34,17 @@ export default function NftFilters({
   onNetworkChange,
 }: NftFiltersProps) {
   return (
-    <aside className="h-fit rounded-xl border border-[#513324] bg-[#241813] p-5 text-[#d5ae83]">
-      <h2 className="mb-5 font-mono text-lg font-bold text-white">
+    <aside className="h-fit bg-[#241713] px-5 py-7 text-[#c6a17b] sm:px-6">
+      <h2 className="font-mono text-lg font-extrabold text-[#f5eee7]">
         Coleções
       </h2>
 
-      <div className="space-y-6">
+      <div className="mt-7 space-y-8">
+        {/* Busca */}
         <div>
           <label
             htmlFor="nft-search"
-            className="mb-2 block text-sm text-white/80"
+            className="mb-3 block font-mono text-xs font-bold text-[#f5eee7]"
           >
             Buscar NFT
           </label>
@@ -54,12 +55,13 @@ export default function NftFilters({
             placeholder="Nome ou criador..."
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            className="w-full rounded-md border border-[#513324] bg-[#140e0c] px-3 py-2.5 text-sm text-white outline-none focus:border-[#d9904e]"
+            className="w-full rounded-md border border-[#60402f] bg-[#170f0c] px-3 py-3 text-xs text-white outline-none transition placeholder:text-[#8d7160] focus:border-[#d9914d]"
           />
         </div>
 
+        {/* Categorias */}
         <fieldset>
-          <legend className="mb-3 font-mono text-sm font-bold text-white">
+          <legend className="mb-4 font-mono text-xs font-bold text-[#f5eee7]">
             Categorias
           </legend>
 
@@ -70,22 +72,23 @@ export default function NftFilters({
                 type="button"
                 aria-pressed={category === item}
                 onClick={() => onCategoryChange(item)}
-                className={`flex w-full cursor-pointer justify-between rounded px-2 py-2 text-left text-sm transition-colors hover:bg-[#38251d] ${
+                className={`flex w-full cursor-pointer items-center rounded px-3 py-2.5 text-left text-xs transition ${
                   category === item
-                    ? 'bg-[#38251d] font-semibold text-[#e39a52]'
-                    : 'text-[#c6a17b]'
+                    ? 'bg-[#38251d] font-bold text-[#e9a15c]'
+                    : 'text-[#c6a17b] hover:bg-[#38251d]/60 hover:text-[#f5eee7]'
                 }`}
               >
-                <span>{item}</span>
+                {item}
               </button>
             ))}
           </div>
         </fieldset>
 
-        <div>
+        {/* Preço */}
+        <div className="border-t border-[#493025] pt-7">
           <label
             htmlFor="nft-price"
-            className="mb-3 block font-mono text-sm font-bold text-white"
+            className="mb-5 block font-mono text-xs font-bold text-[#f5eee7]"
           >
             Faixa de preço
           </label>
@@ -100,24 +103,30 @@ export default function NftFilters({
             onChange={(event) =>
               onMaxPriceChange(Number(event.target.value))
             }
-            className="w-full cursor-pointer accent-[#d9904e]"
+            className="w-full cursor-pointer accent-[#d9914d]"
           />
 
-          <p className="mt-2 text-xs">
+          <p className="mt-3 font-mono text-xs text-[#c6a17b]">
             Até {maxPrice.toFixed(2)} ETH
           </p>
         </div>
 
-        <fieldset>
-          <legend className="mb-3 font-mono text-sm font-bold text-white">
-            Rede
-          </legend>
+        {/* Rede */}
+        <fieldset className="border-t border-[#493025] pt-7">
+          <legend className="sr-only">Rede</legend>
 
-          <div className="space-y-2">
+          <p
+            aria-hidden="true"
+            className="mb-4 font-mono text-xs font-bold text-[#f5eee7]"
+          >
+            Rede
+          </p>
+
+          <div className="space-y-3">
             {['Todas', 'Ethereum'].map((item) => (
               <label
                 key={item}
-                className="flex cursor-pointer items-center gap-2 text-sm"
+                className="flex cursor-pointer items-center gap-3 text-xs text-[#c6a17b]"
               >
                 <input
                   type="radio"
@@ -125,7 +134,7 @@ export default function NftFilters({
                   value={item}
                   checked={network === item}
                   onChange={() => onNetworkChange(item)}
-                  className="accent-[#d9904e]"
+                  className="accent-[#d9914d]"
                 />
                 {item}
               </label>
@@ -133,10 +142,11 @@ export default function NftFilters({
           </div>
         </fieldset>
 
-        <div>
+        {/* Ordenação */}
+        <div className="border-t border-[#493025] pt-7">
           <label
             htmlFor="nft-sort"
-            className="mb-2 block font-mono text-sm font-bold text-white"
+            className="mb-3 block font-mono text-xs font-bold text-[#f5eee7]"
           >
             Ordenar por
           </label>
@@ -145,7 +155,7 @@ export default function NftFilters({
             id="nft-sort"
             value={sortBy}
             onChange={(event) => onSortChange(event.target.value)}
-            className="w-full rounded-md border border-[#513324] bg-[#140e0c] px-3 py-2.5 text-sm text-white outline-none focus:border-[#d9904e]"
+            className="w-full rounded-md border border-[#60402f] bg-[#170f0c] px-3 py-3 text-xs text-white outline-none transition focus:border-[#d9914d]"
           >
             <option value="default">Destaques</option>
             <option value="lowest">Menor preço</option>
@@ -163,7 +173,7 @@ export default function NftFilters({
             onMaxPriceChange(2.5)
             onNetworkChange('Todas')
           }}
-          className="w-full cursor-pointer rounded-md border border-[#d9904e] px-3 py-2 text-sm font-semibold text-[#d9904e] transition-colors hover:bg-[#d9904e] hover:text-[#140e0c]"
+          className="w-full cursor-pointer rounded-md border border-[#d9914d] px-4 py-3 text-xs font-bold text-[#d9914d] transition hover:bg-[#d9914d] hover:text-[#170f0c]"
         >
           Limpar filtros
         </button>
