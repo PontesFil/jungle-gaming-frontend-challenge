@@ -81,6 +81,22 @@ const registerRoute = createRoute({
   ),
 })
 
+const profileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/profile',
+  component: lazyRouteComponent(
+    () => import('./pages/ProfilePage'),
+  ),
+})
+
+const walletRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/wallet',
+  component: lazyRouteComponent(
+    () => import('./pages/WalletPage'),
+  ),
+})
+
 const routeTree = rootRoute.addChildren([
   homeRoute,
   nftDetailsRoute,
@@ -89,6 +105,8 @@ const routeTree = rootRoute.addChildren([
   confirmationRoute,
   loginRoute,
   registerRoute,
+  profileRoute,
+  walletRoute,
 ])
 
 export const router = createRouter({
