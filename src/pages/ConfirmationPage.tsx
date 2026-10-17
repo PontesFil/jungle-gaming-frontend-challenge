@@ -1,5 +1,17 @@
+
 import { Link, useSearch } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import {
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  Clock3,
+  LockKeyhole,
+  RefreshCw,
+  ShieldCheck,
+  ShoppingBag,
+  AlertCircle,
+} from 'lucide-react'
 import axios from 'axios'
 
 import { useAuth } from '../contexts/AuthContext'
@@ -34,7 +46,7 @@ export default function ConfirmationPage() {
     message = 'Nenhum identificador de pedido foi fornecido.'
   } else if (isPending) {
     title = 'Verificando pedido...'
-    message = 'Aguarde enquanto consultamos a API.'
+    message = 'Aguarde enquanto consultamos a API simulada.'
   } else if (isError) {
     title = 'Pedido não confirmado'
 
@@ -48,74 +60,125 @@ export default function ConfirmationPage() {
       'Seu pedido foi confirmado com sucesso pela API simulada.'
   }
 
+  const checking = Boolean(user && orderId && isPending)
+
   return (
-    <main className="min-h-screen bg-[#140e0c] text-white">
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+    <main className="bg-[#140e0c] pb-24 text-[#f5eee7]">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav
-          aria-label="Navegação"
-          className="mb-8 text-sm text-white/50"
+          aria-label="Navegação estrutural"
+          className="mb-10 flex items-center gap-3 font-mono text-xs"
         >
           <Link
             to="/"
-            className="transition hover:text-orange-400"
+            className="text-[#b99674] transition hover:text-[#e9a15c]"
           >
-            Mercado
+            Início
           </Link>
 
-          <span className="mx-3">/</span>
+          <span className="text-[#70503e]">/</span>
 
-          <span className="text-orange-400">
+          <span className="text-[#e9a15c]">
             Confirmação
           </span>
         </nav>
 
-        {/* Etapas da compra */}
-        <div className="mb-10 flex flex-wrap items-center justify-center gap-3 text-xs font-semibold sm:text-sm">
-          <span className="text-orange-400">
-            ✓ Carrinho
-          </span>
+        {/* Progresso da compra */}
+        <div
+          aria-label="Progresso da compra"
+          className="mx-auto mb-12 grid max-w-3xl grid-cols-3 gap-2 sm:gap-4"
+        >
+          <div className="flex items-center gap-2 border-b-2 border-[#d9914d] pb-4">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#d9914d] text-[#1a100d]">
+              <Check size={15} strokeWidth={3} />
+            </span>
 
-          <span className="text-white/30">—</span>
+            <span className="font-mono text-[11px] font-semibold text-[#e9a15c] sm:text-xs">
+              Carrinho
+            </span>
+          </div>
 
-          <span className="text-orange-400">
-            ✓ Pagamento
-          </span>
+          <div className="flex items-center gap-2 border-b-2 border-[#d9914d] pb-4">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#d9914d] text-[#1a100d]">
+              <Check size={15} strokeWidth={3} />
+            </span>
 
-          <span className="text-white/30">—</span>
+            <span className="font-mono text-[11px] font-semibold text-[#e9a15c] sm:text-xs">
+              Pagamento
+            </span>
+          </div>
 
-          <span
-            className={
+          <div
+            className={`flex items-center gap-2 border-b-2 pb-4 ${
               confirmed
-                ? 'rounded-full border border-orange-500/40 bg-orange-500/10 px-3 py-1.5 text-orange-400'
-                : 'rounded-full border border-white/10 px-3 py-1.5 text-white/50'
-            }
+                ? 'border-[#d9914d]'
+                : 'border-[#493025]'
+            }`}
           >
-            3. Confirmação
-          </span>
-        </div>
-
-        <section className="mx-auto max-w-2xl overflow-hidden rounded-2xl border border-[#67412c] bg-[#211713]">
-          {/* Cabeçalho */}
-          <div className="border-b border-white/10 px-6 py-10 text-center sm:px-10">
-            <div
-              aria-hidden="true"
-              className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full border text-4xl ${
+            <span
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-xs font-extrabold ${
                 confirmed
-                  ? 'border-orange-500/30 bg-orange-500/10 text-orange-400'
-                  : 'border-white/10 bg-white/5 text-white/50'
+                  ? 'bg-[#d9914d] text-[#1a100d]'
+                  : 'border border-[#60402f] text-[#a98a70]'
               }`}
             >
-              {confirmed ? '✓' : isPending && user && orderId ? '…' : '◇'}
+              {confirmed ? (
+                <Check size={15} strokeWidth={3} />
+              ) : (
+                '3'
+              )}
+            </span>
+
+            <span
+              className={`font-mono text-[11px] font-semibold sm:text-xs ${
+                confirmed
+                  ? 'text-[#e9a15c]'
+                  : 'text-[#a98a70]'
+              }`}
+            >
+              Confirmação
+            </span>
+          </div>
+        </div>
+
+        <section className="mx-auto max-w-2xl">
+          {/* Estado da consulta */}
+          <div className="flex flex-col items-center border-b border-[#493025] pb-10 text-center">
+            <div
+              aria-hidden="true"
+              className={`flex h-24 w-24 items-center justify-center rounded-full border ${
+                confirmed
+                  ? 'border-[#d9914d]/40 bg-[#d9914d]/10 text-[#e9a15c]'
+                  : 'border-[#67412c] bg-[#281914] text-[#b99674]'
+              }`}
+            >
+              {confirmed ? (
+                <CheckCircle2 size={46} strokeWidth={1.5} />
+              ) : checking ? (
+                <Clock3
+                  size={42}
+                  strokeWidth={1.5}
+                  className="animate-pulse"
+                />
+              ) : !user ? (
+                <LockKeyhole size={40} strokeWidth={1.5} />
+              ) : isError ? (
+                <AlertCircle size={42} strokeWidth={1.5} />
+              ) : (
+                <ShoppingBag size={40} strokeWidth={1.5} />
+              )}
             </div>
 
-            <p className="mt-7 text-xs font-semibold uppercase tracking-[0.2em] text-orange-400">
+            <p className="mt-8 font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#d9914d]">
               Kurio Marketplace
             </p>
 
             <h1
-              className={`mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl ${
-                confirmed ? 'text-orange-400' : 'text-white'
+              className={`mt-3 font-mono text-3xl font-extrabold tracking-tight sm:text-4xl ${
+                confirmed
+                  ? 'text-[#e9a15c]'
+                  : 'text-[#f5eee7]'
               }`}
             >
               {title}
@@ -123,85 +186,99 @@ export default function ConfirmationPage() {
 
             <p
               role={isError ? 'alert' : undefined}
-              className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-white/60"
+              className="mt-5 max-w-md text-sm leading-7 text-[#b99674]"
             >
               {message}
             </p>
           </div>
 
-          {/* Detalhes do pedido */}
+          {/* Detalhes de um pedido confirmado */}
           {confirmed && data && (
-            <div className="px-6 py-8 sm:px-10">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-lg font-extrabold">
+            <div className="py-9">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <h2 className="font-mono text-lg font-extrabold">
                   Detalhes do pedido
                 </h2>
 
-                <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-bold text-orange-400">
-                  ✓ Confirmado
+                <span className="inline-flex items-center gap-2 rounded-full border border-[#d9914d]/30 bg-[#d9914d]/10 px-3 py-1.5 font-mono text-[11px] font-bold text-[#e9a15c]">
+                  <Check size={13} />
+                  Confirmado
                 </span>
               </div>
 
-              <div className="mt-6 divide-y divide-white/10 rounded-xl border border-[#493025] bg-[#140e0c] px-5">
-                <div className="py-4">
-                  <p className="text-xs text-white/40">
+              <div className="mt-7 divide-y divide-[#493025] border-y border-[#493025]">
+                <div className="py-5">
+                  <p className="font-mono text-xs text-[#a98a70]">
                     Identificador do pedido
                   </p>
 
-                  <p className="mt-2 break-all font-mono text-sm text-white/90">
+                  <p className="mt-2 break-all font-mono text-sm font-semibold text-[#f5eee7]">
                     {data.orderId}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between gap-4 py-4">
-                  <span className="text-sm text-white/50">
+                <div className="flex items-center justify-between gap-4 py-5">
+                  <span className="text-sm text-[#b99674]">
                     Status
                   </span>
 
-                  <span className="text-sm font-semibold text-orange-400">
+                  <span className="font-mono text-xs font-bold text-[#e9a15c]">
                     Confirmado
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between gap-4 py-4">
-                  <span className="text-sm text-white/50">
+                <div className="flex items-center justify-between gap-4 py-5">
+                  <span className="text-sm text-[#b99674]">
                     NFTs adquiridos
                   </span>
 
-                  <span className="text-sm font-semibold">
+                  <span className="font-mono text-sm font-semibold">
                     {data.nftIds.length}
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-2 py-4">
-                  <span className="text-sm text-white/50">
+                <div className="flex flex-wrap items-center justify-between gap-3 py-5">
+                  <span className="text-sm text-[#b99674]">
                     Data do pedido
                   </span>
 
-                  <span className="text-sm font-semibold">
+                  <span className="font-mono text-xs font-semibold">
                     {new Date(data.createdAt).toLocaleString('pt-BR')}
                   </span>
                 </div>
               </div>
 
-              <div className="mt-6 rounded-xl border border-orange-500/20 bg-orange-500/5 p-4">
-                <p className="text-sm leading-relaxed text-white/60">
-                  Este pedido faz parte de uma experiência demonstrativa.
-                  Nenhuma transferência de criptomoeda ou NFT real
-                  foi realizada.
-                </p>
+              {/* Aviso demonstrativo */}
+              <div className="mt-7 flex items-start gap-3 border-l-2 border-[#d9914d] bg-[#241713] px-5 py-4">
+                <ShieldCheck
+                  size={20}
+                  className="mt-0.5 shrink-0 text-[#d9914d]"
+                />
+
+                <div>
+                  <p className="font-mono text-xs font-bold">
+                    Compra demonstrativa
+                  </p>
+
+                  <p className="mt-2 text-xs leading-6 text-[#b99674]">
+                    Este pedido foi registrado na API simulada.
+                    Nenhuma transferência de criptomoeda ou
+                    NFT real foi realizada.
+                  </p>
+                </div>
               </div>
             </div>
           )}
 
           {/* Ações */}
-          <div className="border-t border-white/10 px-6 py-7 sm:px-10">
+          <div className="border-t border-[#493025] pt-8">
             {!user && (
               <Link
                 to="/login"
-                className="mb-4 flex w-full items-center justify-center rounded-xl border border-orange-500/40 px-5 py-3 font-bold text-orange-400 transition hover:bg-orange-500/10"
+                className="mb-4 flex w-full items-center justify-center gap-2 rounded-md border border-[#d9914d] px-5 py-3.5 font-mono text-xs font-bold text-[#e9a15c] transition hover:bg-[#d9914d]/10"
               >
                 Fazer login
+                <ArrowRight size={16} />
               </Link>
             )}
 
@@ -210,8 +287,13 @@ export default function ConfirmationPage() {
                 type="button"
                 onClick={() => void refetch()}
                 disabled={isFetching}
-                className="mb-4 w-full rounded-xl border border-orange-500/40 px-5 py-3 font-bold text-orange-400 transition hover:bg-orange-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+                className="mb-4 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-[#d9914d] px-5 py-3.5 font-mono text-xs font-bold text-[#e9a15c] transition hover:bg-[#d9914d]/10 disabled:cursor-not-allowed disabled:opacity-50"
               >
+                <RefreshCw
+                  size={16}
+                  className={isFetching ? 'animate-spin' : ''}
+                />
+
                 {isFetching
                   ? 'Consultando pedido...'
                   : 'Consultar novamente'}
@@ -220,12 +302,13 @@ export default function ConfirmationPage() {
 
             <Link
               to="/"
-              className="flex w-full items-center justify-center rounded-xl bg-orange-500 px-6 py-3.5 font-bold text-[#1b100b] transition hover:bg-orange-400"
+              className="flex w-full items-center justify-center gap-2 rounded-md bg-[#d9914d] px-6 py-4 font-mono text-xs font-extrabold text-[#1a100d] transition hover:bg-[#efaa67]"
             >
-              Voltar ao catálogo →
+              Voltar ao catálogo
+              <ArrowRight size={16} />
             </Link>
 
-            <p className="mt-4 text-center text-xs text-white/40">
+            <p className="mt-5 text-center text-xs text-[#96755f]">
               Obrigado por explorar o Kurio Marketplace.
             </p>
           </div>
